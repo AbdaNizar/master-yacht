@@ -1,30 +1,19 @@
-const multer = require("multer");
-const path = require("path");
+// src/middlewares/upload.js
+const multer = require('multer');
+const path = require('path');
+const crypto = require('crypto');
 
 const storage = multer.diskStorage({
-    destination: (req, file, cb) => {
-        cb(null, "uploads/images");
-    },
-    filename: (req, file, cb) => {
-        cb(null, Date.now() + path.extname(file.originalname));
-    },
-});
-
-const fileFilter = (req, file, cb) => {
-    const allowedTypes = /jpeg|jpg|png|gif/;
-    const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
-    const mimetype = allowedTypes.test(file.mimetype);
-
-    if (extname && mimetype) {
-        cb(null, true);
-    } else {
-        cb(new Error("Seuls les fichiers images sont autorisés (jpeg, jpg, png, gif)"));
+    destination: (_req, _file, cb) => cb(null, path.join(__dirname, '../../uploads')),
+    filename: (_req, file, cb) => {
+        const ext = (path.extname(file.originalname) || '').toLowerCase();
+        cb(null, crypto.randomBytes(16).toString('hex') + ext);
     }
-};
-
-const upload = multer({
-    storage: storage,
-    fileFilter: fileFilter,
 });
 
-module.exports = upload;
+function fileFilter(_req, file, cb) {
+    const ok = /image\/(png|jpe?g|webp|gif|svg\+xml)/i.test(file.mimetype);
+    cb(ok ? null : new Error('TYPE_NOT_ALLOWED'), ok);
+}
+
+exports.uploadImages = multer({ storage, fileFilter, limits: { fileSize: 5 * 1024 * 1024 } });

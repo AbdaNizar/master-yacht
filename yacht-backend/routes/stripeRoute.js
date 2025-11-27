@@ -12,7 +12,6 @@ router.post('/create-payment-intent', async (req, res) => {
         if (!amount || !currency) {
             return res.status(400).json({ error: 'Missing required parameters: amount, currency' });
         }
-        console.log('holllllllaa',process.env.NODE_ENV);
         const paymentIntent = await stripe.paymentIntents.create({
             amount, // Amount in cents
             currency,

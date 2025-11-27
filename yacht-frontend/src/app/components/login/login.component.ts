@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import {Component} from '@angular/core';
 import {UserService} from '../../services/userService/user.service';
 import {Router} from '@angular/router';
 import {FormsModule} from '@angular/forms';
@@ -22,19 +22,18 @@ export class LoginComponent {
     password: '',
   };
 
-  constructor(private userService : UserService,private authService : AuthService, private router: Router) {}
+  constructor(private userService: UserService, private authService: AuthService, private router: Router) {
+  }
 
   onSubmit(): void {
-    console.log('this.user',this.user)
     this.userService.loginUser(this.user.email, this.user.password).subscribe({
       next: (response) => {
         this.authService.setUser(response.user);
         localStorage.setItem('jwt', response.token);
-        if (response.user.role !== 'admin'){
+        if (response.user.role !== 'admin') {
           this.router.navigate([`dashboard/${response.user.role}/list`]);
           const user = this.authService.getUser();
-        }
-        else {
+        } else {
           this.router.navigate([`dashboard/admin`]);
         }
       },
@@ -61,7 +60,7 @@ export class LoginComponent {
   }
 
   goToRegister() {
-    return  this.router.navigate(['/register']);
+    return this.router.navigate(['/register']);
 
   }
 }

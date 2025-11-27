@@ -33,7 +33,6 @@ export class AddReviewComponent implements OnInit {
   constructor(
     private route: ActivatedRoute,
     private reviewService: ReviewService,
-    private yachtService: YachtService,
     private bookingService: BookingService,
     private router: Router,
     private toastr: ToastrService

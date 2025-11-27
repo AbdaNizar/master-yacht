@@ -39,4 +39,5 @@ export class SidebarComponent implements OnInit {
   }
 
   protected readonly getUrlToSideBar = getUrlToSideBar;
+  protected readonly getUrl = getUrl;
 }

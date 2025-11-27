@@ -1,18 +1,15 @@
 const {webSocketNotifications} = require("../helpers/fileHelpers");
 const Notification = require('../models/Notification');
-const Booking = require("../models/Booking");
+
+
 
 
 
 const createNotification = async function (notification) {
-    notification = new Notification(notification)
-    let notify = await Notification.findById(notification._id);
+    let notify = await new Notification(notification)
     await webSocketNotifications(notify)
-    return notification.save();
+    return notify.save();
 }
-
-
-
 const readNotification = async function (req, res) {
 
     try {
@@ -46,8 +43,6 @@ const readAllNotification = async function (req, res) {
         res.status(500).json({ message: "Erreur serveur lors de la mise à jour des notifications." });
     }
 }
-
-
 const GetNotifications = async function(req, res) {
     console.log('[notifications] [getNotifications]');
     const userId = req.user._id;
@@ -65,6 +60,8 @@ const GetNotifications = async function(req, res) {
         res.status(500).json({ message: "Erreur serveur lors de la récupération des notifications." });
     }
 };
+
+
 
 
 

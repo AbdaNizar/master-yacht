@@ -26,7 +26,6 @@ export const routes: Routes = [
 
   { path: 'register', component: CreateUserComponent },
   { path: 'login', component: LoginComponent },
-  { path: 'settings', component: LoginComponent },
 
   {
     path: 'dashboard',
@@ -71,6 +70,7 @@ export const routes: Routes = [
     ],
   },
 
-  { path: '**', component: PageNotFoundComponent },
-  { path: '', component: PageNotFoundComponent },
+  { path: 'not-found', component: PageNotFoundComponent },
+  { path: '**', redirectTo: 'not-found' },
+
 ];

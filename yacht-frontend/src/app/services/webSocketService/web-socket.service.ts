@@ -1,6 +1,5 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
-import {User} from '../../constants/User';
 import {AuthService} from '../authService/auth.service';
 
 @Injectable({
@@ -31,9 +30,9 @@ export class WebSocketService {
 
     this.notificationSocket.addEventListener('message', (event) => {
       const message = JSON.parse(event.data);
-
-      if (message.notification !== undefined) {
-        console.log('message.notification.user.toString() == this.user.id.toString()',message.notification.user.toString() == this.user.id.toString())
+      console.log('event.data',event.data)
+      if (message.notification !== undefined && message.notification !== null) {
+        console.log('message.notification?.user',message.notification)
         if (message.notification.user.toString() == this.user.id.toString()) {
           console.log('🔔 New notification for user:', message.notification);
           this.notificationSubject.next(message.notification);

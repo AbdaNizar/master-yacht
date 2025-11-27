@@ -1,7 +1,7 @@
 <div class="sidebar">
   <div class="logo">
     <div class="profile-picture">
-      <img [src]="user?.image ? getUrlToSideBar(user?.image) : 'assets/default-avatar.png'" alt="Photo de profil" />
+      <img [src]="user?.image ? getUrl(user?.image) : 'assets/default-avatar.png'" alt="Photo de profil" />
     </div>
     <h1>{{user?.name}}</h1>
   </div>

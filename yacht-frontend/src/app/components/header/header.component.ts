@@ -44,6 +44,7 @@ export class HeaderComponent implements OnInit{
         this.notifications.unshift(notification);
         this.unreadCount++;
         this.showToast(notification);
+        console.log('hereee')
       }
     });
   }
@@ -93,7 +94,7 @@ export class HeaderComponent implements OnInit{
       positionClass: 'toast-top-right',
       closeButton: true,
       progressBar: true,
-      toastClass: bgToster, // Custom class for the toast
+      toastClass: bgToster,
     });
   }
 
@@ -107,20 +108,34 @@ export class HeaderComponent implements OnInit{
     }
   }
   async loadCountries() {
-    const response = await fetch('https://restcountries.com/v3.1/all');
-    const data = await response.json();
-    this.countries = data.map((c: any) => ({
-      name: c.name.common,
-      code: c.cca2,
-      flag: c.flags.svg
-    }));
+    try {
+      const response = await fetch('https://restcountries.com/v3.1/all?fields=name,cca2,flags', {
+        headers: { 'Accept': 'application/json' }
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      this.countries = data.map((c: any) => ({
+        name: c.name.common,
+        code: c.cca2,
+        flag: c.flags.svg
+      }));
+
+    } catch (error) {
+      console.error('Error loading countries:', error);
+    }
   }
+
 
 
   filterCountries() {
     this.filteredCountries = this.searchTerm
       ? this.countries.filter(c => c.name.toLowerCase().includes(this.searchTerm.toLowerCase()))
       : [];
+    console.log('this.filteredCountries',this.filteredCountries)
   }
 
   selectCountry(country: any) {

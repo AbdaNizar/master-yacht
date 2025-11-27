@@ -11,6 +11,7 @@ const checkAndCreateFolder = (folderPath) => {
 
 const WebSocket = require('ws');
 const webSocketNotifications = async function (notification) {
+    console.log('notification',notification)
     const {getServerAndWss} = require('../server')
     const serverWss = await getServerAndWss()
     if (serverWss.server) {
@@ -21,6 +22,7 @@ const webSocketNotifications = async function (notification) {
             if (client.readyState === WebSocket.OPEN) {
 
                 try {
+                    console.log('notificationsToSend',notificationsToSend)
                     client.send(notificationsToSend);
                 } catch (error) {
                     console.error('Error sending WebSocket notification:', error);
