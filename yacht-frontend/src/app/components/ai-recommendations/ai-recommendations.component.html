@@ -1,0 +1,230 @@
+<div class="recommendations-container">
+  <div class="header-section">
+    <h1>🤖 Recommandations IA</h1>
+    <p class="subtitle">Découvrez les yachts sélectionnés spécialement pour vous par notre intelligence artificielle</p>
+
+    <button
+      class="btn-generate"
+      (click)="generateNewRecommendations()"
+      [disabled]="generating">
+      <i class="fas fa-magic"></i>
+      {{ generating ? 'Génération en cours...' : 'Générer de nouvelles recommandations' }}
+    </button>
+  </div>
+
+  <div class="filters-section">
+    <button
+      [class.active]="selectedStatus === ''"
+      (click)="filterByStatus('')">
+      Toutes
+    </button>
+    <button
+      [class.active]="selectedStatus === 'pending'"
+      (click)="filterByStatus('pending')">
+      À découvrir
+    </button>
+    <button
+      [class.active]="selectedStatus === 'viewed'"
+      (click)="filterByStatus('viewed')">
+      Vues
+    </button>
+  </div>
+
+  <div *ngIf="loading" class="loading-container">
+    <div class="spinner"></div>
+    <p>Chargement des recommandations...</p>
+  </div>
+
+  <div *ngIf="!loading && recommendations.length > 0" class="recommendations-grid">
+    <div
+      *ngFor="let recommendation of recommendations"
+      class="recommendation-card"
+      (click)="viewYacht(recommendation)">
+
+      <div class="score-badge" [style.background-color]="getScoreColor(recommendation.score)">
+        <span class="score-icon">{{ getScoreIcon(recommendation.score) }}</span>
+        <span class="score-value">{{ recommendation.score }}/100</span>
+        <span class="score-label">{{ getScoreLabel(recommendation.score) }}</span>
+      </div>
+
+      <div class="status-badge" [ngClass]="recommendation.status">
+        {{ recommendation.status === 'pending' ? 'Nouveau' : recommendation.status === 'viewed' ? 'Vu' : 'Rejeté' }}
+      </div>
+
+      <div class="yacht-image-container">
+        <img
+          [src]="recommendation.yacht.images && recommendation.yacht.images[0] ? getUrl(recommendation.yacht.images[0]) : 'assets/placeholder-yacht.jpg'"
+          [alt]="recommendation.yacht.name"
+          class="yacht-image">
+      </div>
+
+      <div class="yacht-info">
+        <h3>{{ recommendation.yacht.name }}</h3>
+        <p class="yacht-location">
+          <i class="fas fa-map-marker-alt"></i>
+          {{ recommendation.yacht.location }}
+        </p>
+        <p class="yacht-price">
+          <strong>{{ recommendation.yacht.pricePerDay }}Dt</strong>/jour
+        </p>
+        <p class="yacht-capacity">
+          <i class="fas fa-users"></i>
+          {{ recommendation.yacht.capacity }} personnes
+        </p>
+      </div>
+
+      <div class="reasons-section">
+        <h4>Pourquoi nous le recommandons:</h4>
+        <ul class="reasons-list">
+          <li *ngFor="let reason of recommendation.reasons.slice(0, 3)">
+            {{ reason }}
+          </li>
+        </ul>
+      </div>
+
+      <div class="card-actions" (click)="$event.stopPropagation()">
+        <button
+          class="btn-action btn-analysis"
+          (click)="showAIAnalysis(recommendation, $event)">
+          <i class="fas fa-chart-bar"></i>
+          Analyse IA
+        </button>
+        <button
+          class="btn-action btn-dismiss"
+          (click)="dismissRecommendation(recommendation, $event)">
+          <i class="fas fa-times"></i>
+          Pas intéressé
+        </button>
+      </div>
+
+      <div class="card-footer">
+        <small>
+          <i class="fas fa-star"></i>
+          Sentiment: {{ recommendation.aiAnalysis.sentimentScore }}%
+        </small>
+        <small>
+          <i class="fas fa-comments"></i>
+          {{ recommendation.basedOnReviews.length }} avis
+        </small>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="!loading && recommendations.length === 0" class="empty-state">
+    <i class="fas fa-robot fa-5x"></i>
+    <h2>Aucune recommandation disponible</h2>
+    <p>Générez de nouvelles recommandations pour découvrir les meilleurs yachts</p>
+    <button class="btn-generate" (click)="generateNewRecommendations()">
+      <i class="fas fa-magic"></i>
+      Générer des recommandations
+    </button>
+  </div>
+
+  <div *ngIf="!loading && recommendations.length > 0 && totalPages > 1" class="pagination">
+    <button
+      (click)="goToPage(currentPage - 1)"
+      [disabled]="currentPage === 1">
+      <i class="fas fa-chevron-left"></i>
+    </button>
+
+    <span class="page-info">Page {{ currentPage }} / {{ totalPages }}</span>
+
+    <button
+      (click)="goToPage(currentPage + 1)"
+      [disabled]="currentPage === totalPages">
+      <i class="fas fa-chevron-right"></i>
+    </button>
+  </div>
+
+  @if (analysisModalOpen && selectedRecommendation) {
+    <div class="modal-overlay" (click)="closeAnalysisModal()">
+      <div class="modal-content analysis-modal" (click)="$event.stopPropagation()">
+        <button class="modal-close" (click)="closeAnalysisModal()">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+
+        <h2>🤖 Analyse IA - {{ selectedRecommendation.yacht.name }}</h2>
+
+        <div class="analysis-content">
+          <div class="score-section">
+            <h3>Score de Sentiment Client</h3>
+            <div class="score-bar-container">
+              <div class="score-bar">
+                <div class="score-fill"
+                     [style.width.%]="selectedRecommendation.aiAnalysis.sentimentScore"
+                     [style.background]="getSentimentGradient(selectedRecommendation.aiAnalysis.sentimentScore)"></div>
+              </div>
+              <span class="score-text">{{ selectedRecommendation.aiAnalysis.sentimentScore }}%</span>
+            </div>
+            <p class="score-description">
+              {{ getSentimentDescription(selectedRecommendation.aiAnalysis.sentimentScore) }}
+            </p>
+          </div>
+
+          <div class="summary-section">
+            <h3>Résumé des Avis</h3>
+            <p>{{ selectedRecommendation.aiAnalysis.summary }}</p>
+          </div>
+
+          @if (selectedRecommendation.aiAnalysis.topReviews && selectedRecommendation.aiAnalysis.topReviews.length > 0) {
+            <div class="top-reviews-section">
+              <h3>⭐ Meilleurs Commentaires Clients</h3>
+              @for (review of selectedRecommendation.aiAnalysis.topReviews; track review) {
+                <div class="review-highlight">
+                  <div class="review-header">
+                    <strong>{{ review.clientName }}</strong>
+                    <div class="review-rating">
+                      @for (star of [1,2,3,4,5]; track star) {
+                        <span class="star" [class.filled]="star <= review.rating">★</span>
+                      }
+                    </div>
+                  </div>
+                  <p class="review-comment">"{{ review.comment }}"</p>
+                  <small class="review-date">{{ review.date | date: 'dd/MM/yyyy' }}</small>
+                </div>
+              }
+            </div>
+          }
+
+          @if (selectedRecommendation.aiAnalysis.keyPositives.length > 0) {
+            <div class="positives-section">
+              <h3>✅ Points Positifs</h3>
+              <ul>
+                @for (positive of selectedRecommendation.aiAnalysis.keyPositives; track positive) {
+                  <li>{{ positive }}</li>
+                }
+              </ul>
+            </div>
+          }
+
+          @if (selectedRecommendation.aiAnalysis.keyNegatives.length > 0) {
+            <div class="negatives-section">
+              <h3>⚠️ Points à Améliorer</h3>
+              <ul>
+                @for (negative of selectedRecommendation.aiAnalysis.keyNegatives; track negative) {
+                  <li>{{ negative }}</li>
+                }
+              </ul>
+            </div>
+          }
+
+          <p class="based-on">
+            Analyse basée sur {{ selectedRecommendation.basedOnReviews.length }} avis clients réels
+          </p>
+        </div>
+
+        <div class="modal-actions">
+          <button class="btn-primary" (click)="viewYacht(selectedRecommendation)">
+            Voir le yacht
+          </button>
+          <button class="btn-secondary" (click)="closeAnalysisModal()">
+            Fermer
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+</div>

@@ -1,4 +1,3 @@
-<app-header/>
 <div class="admin-container">
   <h2 class="text-center">Gestion des Avis</h2>
 
@@ -41,12 +40,18 @@
           }
         </div>
         <div class="review-actions">
-          <button class="btn-approve" (click)="approveReview(review._id)">
+          <app-button-loader 
+            [loading]="loadingReviews[review._id]"
+            buttonClass="btn-approve"
+            (click)="approveReview(review._id)">
             <i class="fas fa-check-circle"></i> Approuver
-          </button>
-          <button class="btn-delete" (click)="deleteReview(review._id)">
+          </app-button-loader>
+          <app-button-loader 
+            [loading]="loadingReviews[review._id]"
+            buttonClass="btn-delete"
+            (click)="deleteReview(review._id)">
             <i class="fas fa-trash-alt"></i> Supprimer
-          </button>
+          </app-button-loader>
         </div>
       </div>
     }

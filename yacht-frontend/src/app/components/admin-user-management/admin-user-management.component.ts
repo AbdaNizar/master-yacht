@@ -6,6 +6,7 @@ import { NgClass } from '@angular/common';
 import {getUrl} from '../../constants/functions';
 import {FormsModule} from '@angular/forms';
 import {HeaderComponent} from '../header/header.component';
+import {ButtonLoaderComponent} from '../button-loader/button-loader.component';
 
 @Component({
   selector: 'app-admin-user-management',
@@ -14,7 +15,8 @@ import {HeaderComponent} from '../header/header.component';
   imports: [
     NgClass,
     FormsModule,
-    HeaderComponent
+    HeaderComponent,
+    ButtonLoaderComponent
 ],
   standalone: true
 })
@@ -24,6 +26,7 @@ export class AdminUserManagementComponent implements OnInit {
   showBlockedOnly = false;
   selectedTab: string = 'owners';
   searchQuery: string = '';
+  loadingUsers: { [key: string]: boolean } = {};
 
   filteredOwners: any[] = [];
   filteredClients: any[] = [];
@@ -63,14 +66,26 @@ export class AdminUserManagementComponent implements OnInit {
   }
 
   approveUser(userId: string) {
-    this.adminService.approveUser(userId).subscribe(() => this.loadUsers());
+    this.loadingUsers[userId] = true;
+    this.adminService.approveUser(userId).subscribe(() => {
+      this.loadingUsers[userId] = false;
+      this.loadUsers();
+    });
   }
 
   blockUser(userId: string) {
-    this.adminService.blockUser(userId).subscribe(() => this.loadUsers());
+    this.loadingUsers[userId] = true;
+    this.adminService.blockUser(userId).subscribe(() => {
+      this.loadingUsers[userId] = false;
+      this.loadUsers();
+    });
   }
   deblockUser(userId: string) {
-    this.adminService.blockUser(userId).subscribe(() => this.loadUsers());
+    this.loadingUsers[userId] = true;
+    this.adminService.blockUser(userId).subscribe(() => {
+      this.loadingUsers[userId] = false;
+      this.loadUsers();
+    });
   }
 
 

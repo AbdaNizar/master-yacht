@@ -1,4 +1,141 @@
 <app-header></app-header>
-<div class="calendar-container">
-  <full-calendar [options]="calendarOptions"></full-calendar>
+
+<div class="agenda-container">
+  <div class="agenda-header">
+    <div class="header-content">
+      <div class="icon-wrapper">
+        <i class="fas fa-calendar-alt"></i>
+      </div>
+      <div class="header-text">
+        <h1>Mon Agenda</h1>
+        <p>Gérez vos réservations en un coup d'œil</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="calendar-wrapper">
+    <full-calendar [options]="calendarOptions"></full-calendar>
+  </div>
 </div>
+
+<!-- Modal de détails de réservation -->
+@if (showBookingModal && selectedBooking) {
+  <div class="modal-overlay" (click)="closeModal()">
+    <div class="modal-container" (click)="$event.stopPropagation()">
+      <button class="modal-close" (click)="closeModal()">
+        <i class="fas fa-times"></i>
+      </button>
+
+      <div class="modal-header">
+        <div class="header-icon">
+          <i class="fas fa-ship"></i>
+        </div>
+        <h2>Détails de la Réservation</h2>
+      </div>
+
+      <div class="modal-body">
+        <!-- Client Info Card -->
+        <div class="info-card client-card">
+          <div class="card-header">
+            <i class="fas fa-user"></i>
+            <span>Informations Client</span>
+          </div>
+          <div class="card-content">
+            <div class="client-profile">
+              <img [src]="getUrl(selectedBooking.clientImage)" alt="Client">
+              <div class="client-details">
+                <h3>{{ selectedBooking.clientName }}</h3>
+                @if (selectedBooking.clientEmail) {
+                  <div class="detail-item">
+                    <i class="fas fa-envelope"></i>
+                    <span>{{ selectedBooking.clientEmail }}</span>
+                  </div>
+                }
+                @if (selectedBooking.clientPhone) {
+                  <div class="detail-item">
+                    <i class="fas fa-phone"></i>
+                    <span>{{ selectedBooking.clientPhone }}</span>
+                  </div>
+                }
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Yacht Info Card -->
+        <div class="info-card yacht-card">
+          <div class="card-header">
+            <i class="fas fa-anchor"></i>
+            <span>Informations Yacht</span>
+          </div>
+          <div class="card-content">
+            <div class="yacht-gallery">
+              @if (selectedBooking.yachtImages && selectedBooking.yachtImages.length > 0) {
+                <img [src]="getUrl(selectedBooking.yachtImages[currentImageIndex])" alt="Yacht" class="yacht-image">
+                @if (selectedBooking.yachtImages.length > 1) {
+                  <div class="gallery-controls">
+                    <button (click)="previousImage()" class="gallery-btn">
+                      <i class="fas fa-chevron-left"></i>
+                    </button>
+                    <span class="image-counter">{{ currentImageIndex + 1 }} / {{ selectedBooking.yachtImages.length }}</span>
+                    <button (click)="nextImage()" class="gallery-btn">
+                      <i class="fas fa-chevron-right"></i>
+                    </button>
+                  </div>
+                }
+              }
+            </div>
+            <h3 class="yacht-name">{{ selectedBooking.yachtName }}</h3>
+          </div>
+        </div>
+
+        <!-- Booking Details Card -->
+        <div class="info-card details-card">
+          <div class="card-header">
+            <i class="fas fa-info-circle"></i>
+            <span>Détails de la Réservation</span>
+          </div>
+          <div class="card-content">
+            <div class="detail-row">
+              <span class="detail-label">Statut:</span>
+              <span class="status-badge" [ngClass]="'status-' + selectedBooking.status">
+                {{ getStatusText(selectedBooking.status) }}
+              </span>
+            </div>
+            <div class="detail-row">
+              <span class="detail-label">Prix Total:</span>
+              <span class="detail-value price">{{ selectedBooking.totalPrice }} DT</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        @if (selectedBooking.status === 'pending') {
+          <button class="btn btn-accept" (click)="acceptBooking()">
+            <i class="fas fa-check"></i>
+            Accepter
+          </button>
+          <button class="btn btn-reject" (click)="rejectBooking()">
+            <i class="fas fa-times"></i>
+            Refuser
+          </button>
+        }
+        
+        @if (selectedBooking.status !== 'canceled') {
+          <button class="btn btn-message" (click)="openChat(selectedBooking.clientId, selectedBooking.bookingId)">
+            <i class="fas fa-comment"></i>
+            Envoyer un message
+          </button>
+        }
+        
+        @if (selectedBooking.status !== 'done' && selectedBooking.status !== 'ongoing' && selectedBooking.status !== 'payed' && selectedBooking.status !== 'canceled') {
+          <button class="btn btn-cancel" (click)="cancelBooking()">
+            <i class="fas fa-ban"></i>
+            Annuler la réservation
+          </button>
+        }
+      </div>
+    </div>
+  </div>
+}

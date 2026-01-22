@@ -1,0 +1,168 @@
+@if (isOpen && yacht) {
+  <div class="modal-overlay" (click)="closeModal()">
+    <div class="modal-container" (click)="stopPropagation($event)">
+      <div class="modal-header">
+        <div class="header-content">
+          <i class="fas fa-chart-line"></i>
+          <div>
+            <h2>Analyse IA Complète</h2>
+            <p class="yacht-name">{{ yacht.name }}</p>
+          </div>
+        </div>
+        <button class="close-button" (click)="closeModal()">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+
+      <div class="modal-body">
+        @if (isLoading) {
+          <div class="loading-container">
+            <div class="spinner"></div>
+            <p>Analyse en cours...</p>
+            <small>Traitement des avis clients, prix et capacité</small>
+          </div>
+        } @else if (analysis) {
+          <!-- Score Global -->
+          <div class="score-section">
+            <div class="score-circle" [style.border-color]="getScoreColor(analysis.overallScore)">
+              <span class="score-value">{{ analysis.overallScore }}</span>
+              <span class="score-label">/10</span>
+            </div>
+            <div class="score-info">
+              <h3 [style.color]="getScoreColor(analysis.overallScore)">
+                {{ getScoreLabel(analysis.overallScore) }}
+              </h3>
+              <p class="recommendation-text">{{ analysis.recommendation }}</p>
+            </div>
+          </div>
+
+          <!-- 1. Analyse des Avis (Priorité) -->
+          <div class="analysis-section priority">
+            <div class="section-header">
+              <div class="header-left">
+                <i class="fas fa-comments"></i>
+                <h3>Analyse des Avis Clients</h3>
+              </div>
+              <span class="priority-badge">Priorité 1</span>
+            </div>
+
+            <div class="sentiment-card">
+              <h4>Sentiment Général</h4>
+              <p class="sentiment-text">{{ analysis.reviewAnalysis.overallSentiment }}</p>
+            </div>
+
+            <div class="points-container">
+              <div class="points-group positive">
+                <h4><i class="fas fa-thumbs-up"></i> Points Positifs</h4>
+                <ul>
+                  @for (point of analysis.reviewAnalysis.positivePoints; track point) {
+                    <li>{{ point }}</li>
+                  }
+                </ul>
+              </div>
+
+              @if (analysis.reviewAnalysis.negativePoints.length > 0) {
+                <div class="points-group negative">
+                  <h4><i class="fas fa-exclamation-circle"></i> Points d'Attention</h4>
+                  <ul>
+                    @for (point of analysis.reviewAnalysis.negativePoints; track point) {
+                      <li>{{ point }}</li>
+                    }
+                  </ul>
+                </div>
+              }
+            </div>
+
+            @if (analysis.reviewAnalysis.commonThemes.length > 0) {
+              <div class="themes-card">
+                <h4>Thèmes Récurrents</h4>
+                <div class="themes-list">
+                  @for (theme of analysis.reviewAnalysis.commonThemes; track theme) {
+                    <span class="theme-badge">{{ theme }}</span>
+                  }
+                </div>
+              </div>
+            }
+          </div>
+
+          <!-- 2. Analyse du Prix -->
+          <div class="analysis-section">
+            <div class="section-header">
+              <div class="header-left">
+                <i class="fas fa-money-bill-wave"></i>
+                <h3>Analyse du Prix</h3>
+              </div>
+              <span class="priority-badge secondary">Priorité 2</span>
+            </div>
+
+            <div class="price-grid">
+              <div class="price-card">
+                <div class="price-icon">
+                  <i class="fas fa-tag"></i>
+                </div>
+                <div class="price-content">
+                  <h4>Catégorie</h4>
+                  <p>{{ analysis.priceAnalysis.priceCategory }}</p>
+                </div>
+              </div>
+
+              <div class="price-card">
+                <div class="price-icon">
+                  <i class="fas fa-balance-scale"></i>
+                </div>
+                <div class="price-content">
+                  <h4>Rapport Qualité/Prix</h4>
+                  <p>{{ analysis.priceAnalysis.valueForMoney }}</p>
+                </div>
+              </div>
+
+              <div class="price-card full-width">
+                <div class="price-icon">
+                  <i class="fas fa-chart-bar"></i>
+                </div>
+                <div class="price-content">
+                  <h4>Positionnement Marché</h4>
+                  <p>{{ analysis.priceAnalysis.comparison }}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 3. Analyse de la Capacité -->
+          <div class="analysis-section">
+            <div class="section-header">
+              <div class="header-left">
+                <i class="fas fa-users"></i>
+                <h3>Analyse de la Capacité</h3>
+              </div>
+              <span class="priority-badge tertiary">Priorité 3</span>
+            </div>
+
+            <div class="capacity-card">
+              <h4>Évaluation de l'Espace</h4>
+              <p>{{ analysis.capacityAnalysis.spaceAssessment }}</p>
+            </div>
+
+            <div class="suitable-for">
+              <h4>Convient Pour</h4>
+              <div class="tags-list">
+                @for (group of analysis.capacityAnalysis.suitableFor; track group) {
+                  <span class="tag">{{ group }}</span>
+                }
+              </div>
+            </div>
+
+            <div class="recommendations">
+              <h4>Recommandations d'Usage</h4>
+              <ul>
+                @for (rec of analysis.capacityAnalysis.recommendations; track rec) {
+                  <li>{{ rec }}</li>
+                }
+              </ul>
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+}

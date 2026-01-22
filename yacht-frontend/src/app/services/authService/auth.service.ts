@@ -30,11 +30,13 @@ export class AuthService {
     return this.userSubject.value;
   }
   isAuthenticated(): boolean {
-    return !!localStorage.getItem('jwt');
+    return !!(localStorage.getItem('jwt') || localStorage.getItem('token'));
   }
 
   logout(): void {
     this.setUser(null);
     localStorage.removeItem('jwt');
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
   }
 }

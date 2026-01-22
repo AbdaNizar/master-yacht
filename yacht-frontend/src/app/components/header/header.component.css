@@ -1,320 +1,173 @@
-/* 🔔 Notification Icon */
+.app-header {
+  position: fixed;
+  top: 0;
+  left: 280px;
+  right: 0;
+  height: 70px;
+  z-index: 900;
+  background: rgba(30, 41, 59, 0.95);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid rgba(148, 163, 184, 0.1);
+  transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding: 0 var(--space-xl);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+:host-context(.sidebar-collapsed) .app-header {
+  left: 0px;
+}
+
+@media (max-width: 1024px) {
+  .app-header {
+    left: 0;
+  }
+}
+
+@media (max-width: 768px) {
+  .app-header {
+    height: 60px;
+    padding: 0 var(--space-md);
+  }
+}
+
+.notification-weather-container {
+  display: flex;
+  align-items: center;
+  gap: var(--space-lg);
+  position: relative;
+}
+
+.chat-icon {
+  position: relative;
+  width: 45px;
+  height: 45px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  border-radius: var(--radius-full);
+  background: rgba(16, 185, 129, 0.1);
+  transition: all var(--transition-base);
+}
+
+.chat-icon:hover {
+  background: rgba(16, 185, 129, 0.2);
+  transform: scale(1.05);
+}
+
+.chat-icon i {
+  font-size: 1.25rem;
+  color: #10B981;
+}
+
+.chat-icon .badge {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  background: #10B981;
+  color: white;
+  border-radius: var(--radius-full);
+  padding: 2px 6px;
+  font-size: 0.625rem;
+  font-weight: 700;
+  min-width: 18px;
+  text-align: center;
+  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.4);
+  animation: pulse 2s infinite;
+}
+
 .notification-icon {
   position: relative;
+  width: 45px;
+  height: 45px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   cursor: pointer;
+  border-radius: var(--radius-full);
+  background: rgba(99, 102, 241, 0.1);
+  transition: all var(--transition-base);
+}
+
+.notification-icon:hover {
+  background: rgba(99, 102, 241, 0.2);
+  transform: scale(1.05);
 }
 
 .notification-icon i {
-  font-size: 20px;
-  color: #ffffff;
-  position: absolute;
-  right: 49px;
-  top: -9px;
+  font-size: 1.25rem;
+  color: var(--text-primary);
 }
 
 .notification-icon .badge {
   position: absolute;
-  top: -18px;
-  right: 37px;
-  background-color: #e63946;
-  color: #ffffff;
-  border-radius: 50%;
-  padding: 4px 6px;
-  font-size: 9px;
-  font-weight: bold;
-  line-height: 1;
+  top: -5px;
+  right: -5px;
+  background: var(--error);
+  color: white;
+  border-radius: var(--radius-full);
+  padding: 2px 6px;
+  font-size: 0.625rem;
+  font-weight: 700;
+  min-width: 18px;
+  text-align: center;
+  box-shadow: 0 2px 8px rgba(239, 68, 68, 0.4);
+  animation: pulse 2s infinite;
 }
 
-/* ☁️ Weather Icon */
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+}
+
 .weather-icon {
   position: relative;
+  width: 45px;
+  height: 45px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   cursor: pointer;
-  margin-left: 15px;
-  bottom: 5px;
-  right: 65px;
+  border-radius: var(--radius-full);
+  background: rgba(245, 158, 11, 0.1);
+  transition: all var(--transition-base);
+}
+
+.weather-icon:hover {
+  background: rgba(245, 158, 11, 0.2);
+  transform: scale(1.05);
 }
 
 .weather-icon i {
-  font-size: 22px;
-  color: #f4f4f4;
-  position: absolute;
-  right: 20px;
-  top: -10px;
-  transition: transform 0.3s ease-in-out;
+  font-size: 1.25rem;
+  color: var(--accent);
 }
 
-.weather-icon i:hover {
-  transform: scale(1.1);
-}
-
-/* 🔔 Notification Dropdown */
 .notification-dropdown {
   position: absolute;
-  top: 50px;
+  top: 60px;
   right: 0;
-  background-color: #252636;
-  color: #ffffff;
-  width: 320px;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
-  border-radius: 8px;
-  overflow: hidden;
+  width: 380px;
+  max-height: 500px;
+  background: rgba(30, 41, 59, 0.98);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(148, 163, 184, 0.1);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-2xl);
   z-index: 1000;
-}
-
-.notification-dropdown:before {
-  content: '';
-  position: absolute;
-  top: -10px;
-  right: 15px;
-  border-width: 10px;
-  border-style: solid;
-  border-color: transparent transparent #252636 transparent;
-}
-
-/* Header Styles */
-.notification-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 10px;
-  background-color: #1f2029;
-  border-bottom: 1px solid #343a40;
-}
-
-.notification-header h4 {
-  margin: 0;
-  font-size: 16px;
-  font-weight: bold;
-}
-
-.notification-header .badge {
-  background-color: #17a2b8;
-  color: #ffffff;
-  font-size: 12px;
-  padding: 3px 6px;
-  border-radius: 50%;
-}
-
-/* 📝 Notification List */
-.notification-list {
-  max-height: 300px;
-  overflow-y: auto;
-  padding: 0;
-  margin: 0;
-  list-style: none;
-}
-
-.notification-list li {
-  display: flex;
-  align-items: center;
-  padding: 12px 15px;
-  border-bottom: 1px solid #343a40;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-}
-
-.notification-list li:hover {
-  background-color: #343a40;
-}
-
-.notification-list img {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  margin-right: 10px;
-}
-
-.notification-list .notification-details {
-  flex-grow: 1;
-}
-
-.notification-list p {
-  margin: 0;
-  font-size: 14px;
-  color: #cfd1d8;
-}
-
-.notification-list p strong {
-  font-weight: bold;
-  color: #ffffff;
-}
-
-.notification-list small {
-  display: block;
-  font-size: 12px;
-  color: #8a8d96;
-}
-
-.no-notifications {
-  text-align: center;
-  padding: 20px;
-  font-size: 14px;
-  color: #8a8d96;
-}
-
-/* ✅ Mark All Button */
-.mark-all-btn {
-  background: #007bff;
-  color: white;
-  border: none;
-  padding: 5px 10px;
-  border-radius: 5px;
-  font-size: 12px;
-  cursor: pointer;
-  transition: background 0.3s;
-}
-
-.mark-all-btn:hover {
-  background: #0056b3;
-}
-
-/* 🌤️ Weather Dropdown */
-.weather-dropdown {
-  position: absolute;
-  top: 50px;
-  right: 50px;
-  background-color: #252636;
-  color: #ffffff;
-  width: 300px;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
-  border-radius: 8px;
-  padding: 15px;
-  z-index: 1000;
-  transition: opacity 0.3s ease-in-out;
-}
-
-.weather-dropdown:before {
-  content: '';
-  position: absolute;
-  top: -10px;
-  right: 15px;
-  border-width: 10px;
-  border-style: solid;
-  border-color: transparent transparent #252636 transparent;
-}
-
-/* 🌍 Search Bar */
-.search-bar {
-  position: relative;
-}
-
-.search-bar input {
-  width: 100%;
-  padding: 8px;
-  border: 1px solid #ddd;
-  border-radius: 5px;
-}
-
-/* 📜 Country List */
-.country-list {
-  position: absolute;
-  width: 100%;
-  background: #252636;
-  border: 1px solid #ddd;
-  max-height: 150px;
-  overflow-y: auto;
-  z-index: 999;
-  border-radius: 5px;
-}
-
-.country-list li {
-  padding: 8px;
-  cursor: pointer;
-}
-
-.country-list li:hover {
-  background: rgba(0, 0, 0, 0.57);
-}
-
-/* 🌡️ Weather Details Card */
-.weather-details {
-  text-align: center;
-  padding: 20px;
-  border-radius: 12px;
-  background: rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  box-shadow: 0px 10px 30px rgba(0, 0, 0, 0.4);
-  color: #ffffff;
-  width: 100%;
-  max-width: 350px;
-  margin: 20px auto;
-  position: relative;
+  animation: slideInRight 0.3s ease-out;
   overflow: hidden;
 }
 
-/* 🌞 Weather Icon */
-.weather-details img {
-  width: 90px;
-  height: 90px;
-  margin: 10px 0;
-  filter: drop-shadow(2px 2px 5px rgba(255, 255, 255, 0.5));
-  animation: bounce 2s infinite alternate;
-}
-
-/* 🌡️ Temperature */
-.weather-details .temp {
-  font-size: 32px;
-  font-weight: bold;
-  background: linear-gradient(45deg, #ffdb58, #ff6b6b);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  margin-top: 5px;
-  transition: transform 0.3s ease-in-out;
-}
-
-.weather-details .temp:hover {
-  transform: scale(1.1);
-}
-
-/* ☁️ Weather Description */
-.weather-details .description {
-  font-size: 18px;
-  font-style: italic;
-  text-transform: capitalize;
-  margin-bottom: 10px;
-  color: #ddd;
-}
-
-/* 🌬️ Additional Weather Info */
-.weather-details .extra-info {
-  display: flex;
-  justify-content: space-between;
-  margin-top: 15px;
-  font-size: 16px;
-  padding: 0 15px;
-  font-weight: bold;
-  color: #ddd;
-  opacity: 0.9;
-}
-
-/* 🔄 Animated Weather Background Effects */
-.weather-details::before {
-  content: "";
-  position: absolute;
-  top: -20%;
-  left: -30%;
-  width: 300px;
-  height: 300px;
-  background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
-  transform: rotate(20deg);
-  animation: movingGlow 8s infinite linear;
-}
-.country-flag {
-  width: 25px;
-  height: 16px;
-  margin-right: 10px;
-  border-radius: 3px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-}
-/* Icons for Weather Details */
-.weather-details .extra-info i {
-  font-size: 20px;
-  color: #80e3f1;
-}
-
-/* 🔄 Fade-in Animation */
-@keyframes fadeIn {
+@keyframes slideInRight {
   from {
     opacity: 0;
     transform: translateY(-10px);
@@ -325,51 +178,443 @@
   }
 }
 
-/* 🌊 Floating Animation */
-@keyframes float {
-  0% {
-    transform: translateY(0px);
-  }
-  100% {
-    transform: translateY(-5px);
-  }
+.notification-dropdown::before {
+  content: '';
+  position: absolute;
+  top: -10px;
+  right: 15px;
+  width: 0;
+  height: 0;
+  border-left: 10px solid transparent;
+  border-right: 10px solid transparent;
+  border-bottom: 10px solid rgba(30, 41, 59, 0.98);
 }
 
-/* 🌟 Bouncing Animation */
-@keyframes bounce {
-  from {
-    transform: translateY(0);
-  }
-  to {
-    transform: translateY(-8px);
-  }
+.notification-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--space-lg);
+  background: rgba(15, 23, 42, 0.5);
+  border-bottom: 1px solid rgba(148, 163, 184, 0.1);
 }
 
-/* 💫 Moving Glow Effect */
-@keyframes movingGlow {
-  0% {
-    transform: rotate(0deg) translate(0, 0);
-  }
-  100% {
-    transform: rotate(360deg) translate(20px, -20px);
-  }
+.notification-header h4 {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.notification-header .badge {
+  background: var(--primary);
+  color: white;
+  font-size: 0.75rem;
+  padding: 4px 8px;
+  border-radius: var(--radius-full);
+  font-weight: 600;
+}
+
+.mark-all-btn {
+  background: var(--primary-gradient);
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: var(--radius-md);
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition-base);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.mark-all-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-glow);
+}
+
+.notification-list {
+  max-height: 400px;
+  overflow-y: auto;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+
+.notification-list::-webkit-scrollbar {
+  width: 6px;
+}
+
+.notification-list::-webkit-scrollbar-thumb {
+  background: var(--primary);
+  border-radius: var(--radius-full);
+}
+
+.notification-list li {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-md);
+  padding: var(--space-md) var(--space-lg);
+  border-bottom: 1px solid rgba(148, 163, 184, 0.05);
+  cursor: pointer;
+  transition: all var(--transition-base);
+}
+
+.notification-list li:hover {
+  background: rgba(99, 102, 241, 0.1);
+}
+
+.notification-list li:last-child {
+  border-bottom: none;
+}
+
+.notification-list img {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-full);
+  object-fit: cover;
+  border: 2px solid var(--primary);
+}
+
+.notification-details {
+  flex: 1;
+  min-width: 0;
+}
+
+.notification-details p {
+  margin: 0;
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+.notification-details strong {
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+.notification-details small {
+  display: block;
+  margin-top: 4px;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.no-notifications {
+  text-align: center;
+  padding: var(--space-2xl);
+  color: var(--text-muted);
+  font-size: 0.875rem;
+}
+
+.weather-dropdown {
+  position: absolute;
+  top: 60px;
+  right: 70px;
+  width: 400px;
+  max-height: 550px;
+  background: linear-gradient(135deg, rgba(30, 41, 59, 0.98), rgba(15, 23, 42, 0.98));
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(148, 163, 184, 0.15);
+  border-radius: 20px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+  z-index: 1000;
+  animation: slideInRight 0.3s ease-out;
+  overflow: hidden;
+}
+
+.weather-dropdown::before {
+  content: '';
+  position: absolute;
+  top: -10px;
+  right: 15px;
+  width: 0;
+  height: 0;
+  border-left: 10px solid transparent;
+  border-right: 10px solid transparent;
+  border-bottom: 10px solid rgba(30, 41, 59, 0.98);
+}
+
+.weather-header {
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.1);
+}
+
+.weather-header h4 {
+  margin: 0;
+  font-size: 1.125rem;
+  font-weight: 800;
+  color: white;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.weather-header h4::before {
+  content: '🌤️';
+  font-size: 1.5rem;
+}
+
+.search-bar {
+  position: relative;
+  padding: 1rem 1.5rem;
+}
+
+.search-bar input {
+  width: 100%;
+  padding: 0.875rem 1rem;
+  padding-left: 2.75rem;
+  background: rgba(15, 23, 42, 0.6);
+  border: 2px solid rgba(148, 163, 184, 0.15);
+  border-radius: 50px;
+  color: white;
+  font-size: 0.95rem;
+  font-weight: 500;
+  transition: all var(--transition-base);
+}
+
+.search-bar input:focus {
+  outline: none;
+  border-color: rgba(245, 158, 11, 0.5);
+  box-shadow: 0 0 0 4px rgba(245, 158, 11, 0.1);
+  background: rgba(15, 23, 42, 0.8);
+}
+
+.search-bar input::placeholder {
+  color: rgba(255, 255, 255, 0.4);
+}
+
+.search-bar::before {
+  content: '🔍';
+  position: absolute;
+  left: 2.25rem;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 1.125rem;
+}
+
+.country-list {
+  position: absolute;
+  top: 100%;
+  left: 1.5rem;
+  right: 1.5rem;
+  margin-top: 0.5rem;
+  max-height: 220px;
+  overflow-y: auto;
+  background: rgba(15, 23, 42, 0.98);
+  border: 1px solid rgba(148, 163, 184, 0.15);
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  z-index: 10;
+  list-style: none;
+  padding: 0.5rem 0;
+  margin: 0;
+}
+
+.country-list::-webkit-scrollbar {
+  width: 6px;
+}
+
+.country-list::-webkit-scrollbar-track {
+  background: rgba(15, 23, 42, 0.3);
+  border-radius: 3px;
+}
+
+.country-list::-webkit-scrollbar-thumb {
+  background: linear-gradient(135deg, #F59E0B, #D97706);
+  border-radius: 3px;
+}
+
+.country-list li {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  cursor: pointer;
+  transition: all var(--transition-base);
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 0.95rem;
+  font-weight: 500;
+}
+
+.country-list li:hover {
+  background: linear-gradient(90deg, rgba(245, 158, 11, 0.15), transparent);
+  color: white;
+  padding-left: 1.25rem;
+}
+
+.country-flag {
+  width: 28px;
+  height: 20px;
+  border-radius: 4px;
+  object-fit: cover;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .loading {
-  text-align: center;
-  font-weight: bold;
-  color: #fdb44b;
-  animation: fadeIn 0.5s ease-in-out;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 1.5rem;
+  color: #F59E0B;
+  font-weight: 700;
+  font-size: 1rem;
 }
 
-/* 🔄 FadeIn Animation */
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(-5px);
+.loading::before {
+  content: '⏳';
+  font-size: 3rem;
+  margin-bottom: 1rem;
+  animation: spin 2s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.weather-details {
+  border-radius: 16px;
+  padding: 2rem 1.5rem;
+  margin: 1rem 1.5rem 1.5rem;
+  text-align: center;
+  border: 1px solid rgba(245, 158, 11, 0.2);
+  position: relative;
+  overflow: hidden;
+}
+
+.weather-details::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  right: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle, rgba(245, 158, 11, 0.1) 0%, transparent 70%);
+  animation: float 6s ease-in-out infinite;
+}
+
+.weather-details h3 {
+  margin: 0 0 1.25rem 0;
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: white;
+  position: relative;
+  z-index: 1;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+}
+
+.weather-icons {
+  filter: drop-shadow(0 4px 20px rgba(245, 158, 11, 0.4));
+  animation: floatIcon 4s ease-in-out infinite;
+  position: relative;
+  z-index: 1;
+}
+
+@keyframes floatIcon {
+  0%, 100% {
+    transform: translateY(0) scale(1);
   }
-  to {
-    opacity: 1;
-    transform: translateY(0);
+  50% {
+    transform: translateY(-15px) scale(1.05);
+  }
+}
+
+.weather-details p {
+  margin: 0.875rem 0;
+  font-size: 1rem;
+  color: rgba(255, 255, 255, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  position: relative;
+  z-index: 1;
+  padding: 0.5rem;
+  background: rgba(15, 23, 42, 0.3);
+  border-radius: 8px;
+  backdrop-filter: blur(10px);
+}
+
+.weather-details strong {
+  color: white;
+  font-weight: 700;
+  font-size: 1.125rem;
+  text-shadow: 0 2px 8px rgba(245, 158, 11, 0.3);
+}
+
+@media (max-width: 768px) {
+  .notification-dropdown {
+    width: 340px;
+    right: 0;
+  }
+
+  .weather-dropdown {
+    width: 340px;
+    right: 0;
+  }
+
+  .weather-dropdown::before {
+    right: 70px;
+  }
+}
+
+@media (max-width: 480px) {
+  .notification-dropdown,
+  .weather-dropdown {
+    width: calc(100vw - 20px);
+    left: 10px;
+    right: 10px;
+  }
+
+  .weather-dropdown {
+    max-height: 500px;
+  }
+
+  .weather-dropdown::before {
+    right: 20px;
+  }
+
+  .notification-icon,
+  .weather-icon,
+  .chat-icon {
+    width: 40px;
+    height: 40px;
+  }
+
+  .notification-icon i,
+  .weather-icon i,
+  .chat-icon i {
+    font-size: 1.125rem;
+  }
+
+  .notification-list img {
+    width: 35px;
+    height: 35px;
+  }
+
+  .weather-icons {
+    width: 80px;
+    height: 80px;
+  }
+
+  .weather-details h3 {
+    font-size: 1.25rem;
+  }
+
+  .weather-details p {
+    font-size: 0.9rem;
+  }
+
+  .search-bar {
+    padding: 0.75rem 1rem;
+  }
+
+  .country-list {
+    left: 1rem;
+    right: 1rem;
   }
 }

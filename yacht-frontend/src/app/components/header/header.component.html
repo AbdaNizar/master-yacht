@@ -1,76 +1,85 @@
-<div class="notification-weather-container">
-  <div class="notification-icon" (click)="toggleNotifications()">
-    <i class="fas fa-bell"></i>
-    @if (unreadCount > 0) {
-      <span class="badge">{{ unreadCount }}</span>
-    }
-  </div>
+<header class="app-header">
+  <div class="notification-weather-container">
+    <div class="chat-icon" (click)="goToChat($event)">
+      <i class="fas fa-comments"></i>
+      @if (unreadChatCount > 0) {
+        <span class="badge">{{ unreadChatCount }}</span>
+      }
+    </div>
 
-  <div class="weather-icon" (click)="toggleWeather()">
-    <i class="fas fa-cloud-sun"></i>
-  </div>
-</div>
-
-@if (showNotifications) {
-  <div class="notification-dropdown">
-    <div class="notification-header">
-      <h4>Notifications</h4>
-      <span class="badge">{{ unreadCount }}</span>
+    <div class="notification-icon" (click)="toggleNotifications($event)">
+      <i class="fas fa-bell"></i>
       @if (unreadCount > 0) {
-        <button class="mark-all-btn" (click)="markAllAsRead($event)">Tout marquer comme lu</button>
+        <span class="badge">{{ unreadCount }}</span>
       }
     </div>
-    <ul class="notification-list">
-      @for (notification of notifications; track notification) {
-        <li (click)="goToNotification(notification)">
-          <img [src]="getUrl(notification.userCreate.image) || 'assets/default-avatar.png'" alt="Notification Icon" />
-          <div class="notification-details">
-            <p>
-              <strong>{{ notification.senderName }}</strong> {{ notification.message }}
-            </p>
-            <small>{{ notification.createdAt | date: 'yyyy/MM/dd hh:mm a' }}</small>
-          </div>
-        </li>
-      }
-    </ul>
-    @if (notifications.length === 0) {
-      <p class="no-notifications">Aucune notification disponible</p>
-    }
-  </div>
-}
 
-@if (showWeather) {
-  <div class="weather-dropdown">
-    <div class="weather-header">
-      <h4>Météo</h4>
+    <div class="weather-icon" (click)="toggleWeather($event)">
+      <i class="fas fa-cloud-sun"></i>
     </div>
-    <div class="search-bar">
-      <input type="text" [(ngModel)]="searchTerm" (input)="filterCountries()" placeholder="Rechercher un pays..." />
-      @if (filteredCountries.length) {
-        <ul class="country-list">
-          @for (country of filteredCountries; track country) {
-            <li (click)="selectCountry(country)">
-              <img [src]="country.flag" class="country-flag" alt="{{ country.name }}" />
-              {{ country.name }}
-            </li>
-          }
-        </ul>
+  </div>
+
+  @if (showNotifications) {
+    <div class="notification-dropdown" (click)="$event.stopPropagation()">
+      <div class="notification-header">
+        <h4>Notifications</h4>
+        <span class="badge">{{ unreadCount }}</span>
+        @if (unreadCount > 0) {
+          <button class="mark-all-btn" (click)="markAllAsRead($event)">Tout comme lu</button>
+        }
+      </div>
+      <ul class="notification-list">
+        @for (notification of notifications; track notification) {
+          <li (click)="goToNotification(notification)">
+            <img [src]="getUrl(notification.userCreate.image) || 'assets/default-avatar.png'" alt="Notification Icon" />
+            <div class="notification-details">
+              <p>
+                <strong>{{ notification.senderName }}</strong> {{ notification.message }}
+              </p>
+              <small>{{ notification.createdAt | date: 'yyyy/MM/dd hh:mm a' }}</small>
+            </div>
+          </li>
+        }
+      </ul>
+      @if (notifications.length === 0) {
+        <p class="no-notifications">Aucune notification disponible</p>
       }
     </div>
-    @if (isLoading) {
-      <div class="loading">Chargement...</div>
-    }
-    @if (weatherData) {
-      <div class="weather-details">
-        <h3>
-          {{ weatherData.name }}, {{ weatherData.country }}
-        </h3>
-        <img [src]="weatherData.icon" alt="Weather Icon" class="weather-icons" />
-        <p>🌡 Température: <strong>{{ weatherData.temp }}°C</strong></p>
-        <p>💧 Humidité: <strong>{{ weatherData.humidity }}%</strong></p>
-        <p>🌬 Vent: <strong>{{ weatherData.windSpeed }} km/h</strong></p>
-        <p>📌 Condition: <strong>{{ weatherData.description }}</strong></p>
+  }
+
+  @if (showWeather) {
+    <div class="weather-dropdown" (click)="$event.stopPropagation()">
+      <div class="weather-header">
+        <h4>Météo</h4>
       </div>
-    }
-  </div>
-}
+      <div class="search-bar">
+        <input type="text" [(ngModel)]="searchTerm" (input)="filterCountries()" placeholder="Rechercher un pays..." />
+        @if (filteredCountries.length) {
+          <ul class="country-list">
+            @for (country of filteredCountries; track country) {
+              <li (click)="selectCountry(country)">
+                <img [src]="country.flag" class="country-flag" alt="{{ country.name }}" />
+                {{ country.name }}
+              </li>
+            }
+          </ul>
+        }
+      </div>
+      @if (isLoading) {
+        <div class="loading">Chargement...</div>
+      }
+      @if (weatherData) {
+        <div class="weather-details">
+          <h3>
+            {{ weatherData.name }}, {{ weatherData.country }}
+          </h3>
+          <img [src]="weatherData.icon" alt="Weather Icon" class="weather-icons" />
+          <p>🌡 Température: <strong>{{ weatherData.temp }}°C</strong></p>
+          <p>💧 Humidité: <strong>{{ weatherData.humidity }}%</strong></p>
+          <p>🌬 Vent: <strong>{{ weatherData.windSpeed }} km/h</strong></p>
+          <p>📌 Condition: <strong>{{ weatherData.description }}</strong></p>
+        </div>
+      }
+    </div>
+  }
+</header>

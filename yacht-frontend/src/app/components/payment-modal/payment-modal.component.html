@@ -1,17 +1,101 @@
-<!-- Modal Wrapper -->
 @if (isModalOpen) {
-  <div class="modal-overlay">
-    <div class="modal-content">
-      <button class="close-button" (click)="closeModal()">×</button>
-      <h2>Paiement sécurisé</h2>
-      <div #paymentElement class="stripe-payment-container"></div>
+  <div class="payment-modal-overlay" (click)="closeModal()">
+    <div class="payment-modal-container" (click)="$event.stopPropagation()">
+      <button class="payment-modal-close" (click)="closeModal()">
+        <i class="fas fa-times"></i>
+      </button>
+
+      <div class="payment-modal-header">
+        <div class="header-icon-payment">
+          <i class="fas fa-shield-alt"></i>
+        </div>
+        <div class="header-content-payment">
+          <h2>Paiement Sécurisé</h2>
+          <p>Transactions protégées par Stripe</p>
+        </div>
+      </div>
+
+      <div class="payment-modal-body">
+        <!-- Booking Summary -->
+        @if (booking) {
+          <div class="booking-summary">
+            <div class="summary-header">
+              <i class="fas fa-file-invoice"></i>
+              <span>Résumé de la réservation</span>
+            </div>
+            <div class="summary-content">
+              <div class="summary-row">
+                <span class="label">Yacht:</span>
+                <span class="value">{{ booking.yacht?.name || 'N/A' }}</span>
+              </div>
+              <div class="summary-row">
+                <span class="label">Dates:</span>
+                <span class="value">
+                  {{ booking.startDate | date:'dd/MM/yyyy' }} - {{ booking.endDate | date:'dd/MM/yyyy' }}
+                </span>
+              </div>
+              <div class="summary-row total-row">
+                <span class="label">Total à payer:</span>
+                <span class="value price">{{ booking.totalPrice }} DT</span>
+              </div>
+            </div>
+          </div>
+        }
+
+        <!-- Payment Form -->
+        <div class="payment-form-section">
+          <div class="form-header">
+            <i class="fas fa-credit-card"></i>
+            <span>Informations de paiement</span>
+          </div>
+
+          @if (!isFormLoaded) {
+            <div class="payment-loading">
+              <div class="loading-spinner">
+                <i class="fas fa-circle-notch fa-spin"></i>
+              </div>
+              <p>Chargement sécurisé du formulaire...</p>
+            </div>
+          }
+
+          <div #paymentElement class="stripe-payment-container" [class.hidden]="!isFormLoaded"></div>
+
+          @if (isFormLoaded) {
+            <div class="security-badges">
+              <div class="badge">
+                <i class="fas fa-lock"></i>
+                <span>SSL Sécurisé</span>
+              </div>
+              <div class="badge">
+                <i class="fab fa-cc-stripe"></i>
+                <span>Powered by Stripe</span>
+              </div>
+              <div class="badge">
+                <i class="fas fa-shield-check"></i>
+                <span>PCI Compliant</span>
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+
       @if (isFormLoaded) {
-        <div class="modal-actions">
-          <button class="pay-button" (click)="handlePayment()">Payer</button>
-          <button class="cancel-button" (click)="closeModal()">Annuler</button>
+        <div class="payment-modal-footer">
+          <button class="btn-cancel-payment" (click)="closeModal()">
+            <i class="fas fa-times"></i>
+            Annuler
+          </button>
+          <button class="btn-pay" (click)="handlePayment()" [disabled]="isProcessing">
+            @if (isProcessing) {
+              <i class="fas fa-circle-notch fa-spin"></i>
+              <span>Traitement...</span>
+            } @else {
+              <i class="fas fa-lock"></i>
+              <span>Payer {{ booking?.totalPrice }} Dt</span>
+            }
+          </button>
         </div>
       }
     </div>
   </div>
 }
-

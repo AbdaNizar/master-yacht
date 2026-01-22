@@ -12,7 +12,7 @@ export const authGuard: CanActivateFn = (route, state) => {
 
   if (authService.isAuthenticated() && user) {
     if(user.role != 'admin'){
-      const allowedPaths = [`dashboard/${user.role}/list`,'dashboard/owner/yacht/add','dashboard/owner/yacht/edit','/dashboard/client/payment-success' ,`dashboard/${user.role}/bookings`,`dashboard/${user.role}/payments`,`dashboard/${user.role}/settings`,`dashboard/${user.role}/earnings`];
+      const allowedPaths = [`dashboard/${user.role}/list`,`dashboard/chat`,`dashboard/chatAi`,'dashboard/owner/yacht/add','dashboard/client/ai-recommendations','dashboard/owner/yacht/edit','/dashboard/client/payment-success' ,`dashboard/${user.role}/bookings`,`dashboard/${user.role}/payments`,`dashboard/${user.role}/settings`,`dashboard/${user.role}/earnings`];
       if (!allowedPaths.some((path) => state.url.includes(path))) {
         router.navigate([`/dashboard/${user.role}/list`]);
         return false;

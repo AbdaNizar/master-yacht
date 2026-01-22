@@ -4,13 +4,15 @@ import {ToastrService} from 'ngx-toastr';
 import { DatePipe, SlicePipe } from '@angular/common';
 import {getUrl} from '../../constants/functions';
 import {HeaderComponent} from '../header/header.component';
+import {ButtonLoaderComponent} from '../button-loader/button-loader.component';
 
 @Component({
   selector: 'app-admin-review-management',
   imports: [
     DatePipe,
     SlicePipe,
-    HeaderComponent
+    HeaderComponent,
+    ButtonLoaderComponent
 ],
   templateUrl: './admin-review-management.component.html',
   standalone: true,
@@ -18,6 +20,7 @@ import {HeaderComponent} from '../header/header.component';
 })
 export class AdminReviewManagementComponent implements OnInit {
   pendingReviews: any[] = [];
+  loadingReviews: { [key: string]: boolean } = {};
 
   constructor(
     private adminService: AdminService,
@@ -47,24 +50,30 @@ export class AdminReviewManagementComponent implements OnInit {
   }
 
   approveReview(reviewId: string) {
+    this.loadingReviews[reviewId] = true;
     this.adminService.approveReview(reviewId).subscribe({
       next: () => {
+        this.loadingReviews[reviewId] = false;
         this.toastr.success("Avis validé avec succès.");
         this.pendingReviews = this.pendingReviews.filter(review => review._id !== reviewId);
       },
       error: () => {
+        this.loadingReviews[reviewId] = false;
         this.toastr.error("Erreur lors de l'approbation de l'avis.");
       }
     });
   }
 
   deleteReview(reviewId: string) {
+    this.loadingReviews[reviewId] = true;
     this.adminService.deleteReview(reviewId).subscribe({
       next: () => {
+        this.loadingReviews[reviewId] = false;
         this.toastr.success("Avis supprimé avec succès.");
         this.pendingReviews = this.pendingReviews.filter(review => review._id !== reviewId);
       },
       error: () => {
+        this.loadingReviews[reviewId] = false;
         this.toastr.error("Erreur lors de la suppression de l'avis.");
       }
     });

@@ -46,17 +46,26 @@ const approveUser = async (req, res) => {
         };
         await createNotification(notification);
 
-        // ✅ Send Email Notification
-        await sendEmail({
+        // ✅ Send Email Notification (Non-bloquant)
+        const emailResult = await sendEmail({
             email: updatedUser.email,
             subject: "🎉 Validation de votre compte - MASTER YACHT",
             template: "account-approval",
             name: updatedUser.name,
             role: updatedUser.role === 'owner' ? 'Propriétaire' : 'Client'
-
         });
 
-        res.status(200).json({message: 'Utilisateur validé avec succès et notification envoyée.'});
+        // Logger le résultat de l'email mais ne pas bloquer
+        if (emailResult.success) {
+            console.log('✅ Email de validation envoyé avec succès');
+        } else {
+            console.warn('⚠️  Email non envoyé:', emailResult.error || emailResult.warning);
+        }
+
+        res.status(200).json({
+            message: 'Utilisateur validé avec succès et notification envoyée.',
+            emailSent: emailResult.success
+        });
 
     } catch (error) {
         console.error('❌ Erreur lors de l\'approbation de l\'utilisateur:', error);

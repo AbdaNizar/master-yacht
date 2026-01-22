@@ -124,7 +124,7 @@ exports.createBooking = async (req, res) => {
 exports.getClientBookings = async (req, res) => {
     try {
         const bookings = await Booking.find({client: req.user._id})
-            .populate('yacht', 'name images pricePerDay')
+            .populate('yacht', 'name images owner pricePerDay')
             .sort({createdAt: -1});
 
         res.status(200).json(bookings);
@@ -136,7 +136,7 @@ exports.getClientBookings = async (req, res) => {
 exports.getClientBookings = async (req, res) => {
     try {
         const bookings = await Booking.find({client: req.user._id})
-            .populate('yacht', 'name images pricePerDay')
+            .populate('yacht', 'name owner images pricePerDay')
             .sort({createdAt: -1});
 
         res.status(200).json(bookings);

@@ -1,4 +1,3 @@
-<app-header/>
 <div class="admin-container">
   <h2 class="text-center">Gestion des Yachts</h2>
 
@@ -40,7 +39,12 @@
                 <p>Prix: {{ yacht.pricePerDay }} DT / jour</p>
                 <div class="yacht-status">⏳ En attente</div>
                 <div class="action-buttons">
-                  <button class="btn btn-success" (click)="approveYacht(yacht)">✅ Approuver</button>
+                  <app-button-loader 
+                    [loading]="loadingYachts[yacht._id]"
+                    buttonClass="btn btn-success"
+                    (click)="approveYacht(yacht)">
+                    ✅ Approuver
+                  </app-button-loader>
                   <button class="btn btn-info" (click)="openMapModal(yacht)">Position</button>
                 </div>
               </div>
@@ -75,7 +79,12 @@
                 <p>Prix: {{ yacht.pricePerDay }} DT / jour</p>
                 <div class="yacht-status validated">✅ Validé</div>
                 <div class="action-buttons">
-                  <button class="btn btn-danger" (click)="approveYacht(yacht)">🚫 Bloquer</button>
+                  <app-button-loader 
+                    [loading]="loadingYachts[yacht._id]"
+                    buttonClass="btn btn-danger"
+                    (click)="approveYacht(yacht)">
+                    🚫 Bloquer
+                  </app-button-loader>
                   <button class="btn btn-info" (click)="openMapModal(yacht)">Position</button>
                 </div>
               </div>

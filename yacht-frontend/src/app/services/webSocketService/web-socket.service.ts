@@ -22,7 +22,9 @@ export class WebSocketService {
   }
 
   private initializeNotificationWebSocket(): void {
-    this.notificationSocket = new WebSocket('ws://localhost:3001/api/');
+    const token = localStorage.getItem('token');
+    const url = token ? `ws://localhost:3001/api/?token=${token}` : 'ws://localhost:3001/api/';
+    this.notificationSocket = new WebSocket(url);
 
     this.notificationSocket.addEventListener('open', () => {
       console.log('✅ Notification WebSocket connection established');

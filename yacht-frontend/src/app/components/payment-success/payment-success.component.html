@@ -1,21 +1,138 @@
 <app-header></app-header>
 
-<div class="payment-success-container">
+<div class="success-container">
   @if (isLoading) {
-    <div class="loading">
-      <div class="loader">
-        <div></div>
-        <div></div>
-        <div></div>
+    <div class="loading-section">
+      <div class="loading-animation">
+        <div class="yacht-loader">
+          <i class="fas fa-ship"></i>
+        </div>
       </div>
-      <p>Traitement du paiement en cours...</p>
+      <h2>Traitement de votre paiement...</h2>
+      <p>Veuillez patienter pendant que nous finalisons votre réservation</p>
+      <div class="progress-bar">
+        <div class="progress-fill"></div>
+      </div>
     </div>
   }
 
   @if (!isLoading && paymentSuccess) {
-    <div class="success-message">
-      <h2>Paiement effectué avec succès ! 🎉</h2>
-      <p>Vous serez redirigé automatiquement vers vos réservations dans <span id="countdown">{{count}}</span> secondes...</p>
+    <div class="success-section">
+      <div class="success-animation">
+        <div class="checkmark-circle">
+          <i class="fas fa-check"></i>
+        </div>
+        <div class="celebration">
+          <i class="fas fa-star"></i>
+          <i class="fas fa-star"></i>
+          <i class="fas fa-star"></i>
+          <i class="fas fa-star"></i>
+          <i class="fas fa-star"></i>
+        </div>
+      </div>
+
+      <div class="success-content">
+        <h1>Paiement Réussi !</h1>
+        <p class="subtitle">Votre réservation a été confirmée avec succès</p>
+
+        <div class="payment-details-card">
+          <div class="card-header">
+            <i class="fas fa-info-circle"></i>
+            <span>Détails du paiement</span>
+          </div>
+          <div class="card-content">
+            <div class="detail-row">
+              <span class="label">
+                <i class="fas fa-credit-card"></i>
+                ID de transaction:
+              </span>
+              <span class="value">{{ paymentIntentId }}</span>
+            </div>
+            <div class="detail-row">
+              <span class="label">
+                <i class="fas fa-check-circle"></i>
+                Statut:
+              </span>
+              <span class="value success">Confirmé</span>
+            </div>
+            <div class="detail-row">
+              <span class="label">
+                <i class="fas fa-calendar"></i>
+                Date:
+              </span>
+              <span class="value">{{ currentDate | date:'dd/MM/yyyy à HH:mm' }}</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="next-steps-card">
+          <div class="card-header">
+            <i class="fas fa-list-check"></i>
+            <span>Prochaines étapes</span>
+          </div>
+          <div class="card-content">
+            <div class="step">
+              <div class="step-icon">
+                <i class="fas fa-envelope"></i>
+              </div>
+              <div class="step-text">
+                <h4>Confirmation par email</h4>
+                <p>Vous recevrez un email de confirmation dans quelques instants</p>
+              </div>
+            </div>
+            <div class="step">
+              <div class="step-icon">
+                <i class="fas fa-calendar-check"></i>
+              </div>
+              <div class="step-text">
+                <h4>Réservation enregistrée</h4>
+                <p>Consultez vos réservations dans votre espace client</p>
+              </div>
+            </div>
+            <div class="step">
+              <div class="step-icon">
+                <i class="fas fa-anchor"></i>
+              </div>
+              <div class="step-text">
+                <h4>Préparez votre aventure</h4>
+                <p>Le propriétaire du yacht vous contactera bientôt</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="redirect-notice">
+          <i class="fas fa-clock"></i>
+          <p>Redirection automatique dans <span id="countdown" class="countdown">{{ count }}</span> secondes...</p>
+        </div>
+
+        <div class="action-buttons">
+          <button class="btn-primary" (click)="goToBookings()">
+            <i class="fas fa-calendar-alt"></i>
+            Voir mes réservations
+          </button>
+          <button class="btn-secondary" (click)="goToHome()">
+            <i class="fas fa-home"></i>
+            Retour à l'accueil
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+
+  @if (!isLoading && !paymentSuccess) {
+    <div class="error-section">
+      <div class="error-animation">
+        <div class="error-circle">
+          <i class="fas fa-times"></i>
+        </div>
+      </div>
+      <h1>Erreur de paiement</h1>
+      <p>Une erreur s'est produite lors du traitement de votre paiement</p>
+      <button class="btn-retry" (click)="goToBookings()">
+        <i class="fas fa-redo"></i>
+        Réessayer
+      </button>
     </div>
   }
 </div>
