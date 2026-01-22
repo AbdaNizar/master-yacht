@@ -9,7 +9,7 @@ import { AgendaComponent } from './components/agenda/agenda.component';
 import { ClientBookingsComponent } from './components/client-bookings/client-bookings.component';
 import { PaymentSuccessComponent } from './components/payment-success/payment-success.component';
 import { PageNotFoundComponent } from './components/page-not-found/page-not-found.component';
-
+import { LandingComponent } from './components/landing/landing.component';
 import { authGuard } from './services/AuthGuard/auth.guard';
 import {AdminUserManagementComponent} from './components/admin-user-management/admin-user-management.component';
 import {AdminYachtManagementComponent} from './components/admin-yacht-management/admin-yacht-management.component';
@@ -19,11 +19,15 @@ import {PaymentComponent} from './components/payment/payment.component';
 import {SettingsComponent} from './components/settings/settings.component';
 import {OwnerEarningsComponent} from './components/owner-earnings/owner-earnings.component';
 import {AdminDashboardComponent} from './components/admin-dashboard/admin-dashboard.component';
+import { AiRecommendationsComponent } from './components/ai-recommendations/ai-recommendations.component';
+import { ChatComponent } from './components/chat/chat.component';
+import {
+  AiSmartRecommendationsComponent
+} from './components/ai-smart-recommendations/ai-smart-recommendations.component';
 
 
 export const routes: Routes = [
-
-
+  { path: '', component: LandingComponent },
   { path: 'register', component: CreateUserComponent },
   { path: 'login', component: LoginComponent },
 
@@ -33,6 +37,7 @@ export const routes: Routes = [
     canActivate: [authGuard],
     children: [
       { path: '', redirectTo: '', pathMatch: 'full' },
+      { path: 'chat', component: ChatComponent, canActivate: [authGuard] },
       { path: 'owner/list', component: YachtListComponent ,canActivate: [authGuard]},
       { path: 'owner/yacht/add', component: OwnerYachtAddComponent ,canActivate: [authGuard] },
       { path: 'owner/yacht/edit/:id', component: OwnerYachtAddComponent ,canActivate: [authGuard] },
@@ -40,6 +45,9 @@ export const routes: Routes = [
       { path: 'owner/settings', component: SettingsComponent ,canActivate: [authGuard]},
       { path: 'owner/earnings', component: OwnerEarningsComponent ,canActivate: [authGuard]},
       { path: 'client/list', component: YachtListComponent,canActivate: [authGuard] },
+      { path: 'client/ai-recommendations', component: AiSmartRecommendationsComponent,canActivate: [authGuard] },
+      { path: 'client/ai-super-recommendations', component: AiSmartRecommendationsComponent,canActivate: [authGuard] },
+
       { path: 'client/payments', component: PaymentComponent,canActivate: [authGuard] },
       { path: 'client/settings', component: SettingsComponent,canActivate: [authGuard] },
       { path: 'client/bookings/:id', component: BookingComponent ,canActivate: [authGuard]},

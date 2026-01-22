@@ -25,8 +25,10 @@ export class SettingsComponent implements OnInit {
   };
   currentPassword: string = '';
   newPassword: string = '';
+  confirmPassword: string = '';
   selectedFile: File | null = null;
-  imagePreview: string | ArrayBuffer | null = ''; // ✅ Stockage temporaire de l'image
+  imagePreview: string | ArrayBuffer | null = '';
+  passwordMismatch: boolean = false;
 
   constructor(private userService: UserService, private authService: AuthService, private router: Router) {}
 
@@ -34,20 +36,36 @@ export class SettingsComponent implements OnInit {
     this.getUserProfile();
   }
 
+  ngDoCheck(): void {
+    if (this.newPassword || this.confirmPassword) {
+      this.passwordMismatch = this.newPassword !== this.confirmPassword;
+    } else {
+      this.passwordMismatch = false;
+    }
+  }
+
   getUserProfile(): void {
     this.user = JSON.parse(<string>localStorage.getItem('user'))
     this.imagePreview = this.user.image ? getUrl(this.user.image) : 'assets/default-avatar.png';
+    this.currentPassword = '';
+    this.newPassword = '';
+    this.confirmPassword = '';
+    this.passwordMismatch = false;
   }
 
   onSubmit(form: any): void {
-    if (form.valid) {
+    if (form.valid && !this.passwordMismatch) {
       const formData = new FormData();
       formData.append('name', this.user.name);
       formData.append('email', this.user.email);
 
-      if (this.currentPassword && this.newPassword) {
-        formData.append('currentPassword', this.currentPassword);
-        formData.append('newPassword', this.newPassword);
+      if (this.currentPassword && this.newPassword && this.confirmPassword) {
+        if (this.newPassword === this.confirmPassword) {
+          formData.append('currentPassword', this.currentPassword);
+          formData.append('newPassword', this.newPassword);
+        } else {
+          return;
+        }
       }
 
       if (this.selectedFile) {
@@ -57,7 +75,7 @@ export class SettingsComponent implements OnInit {
       this.userService.updateUser(formData).subscribe({
         next: async (response) => {
           this.authService.setUser(response.user);
-          this.imagePreview = getUrl(response.user.image); // ✅ Mise à jour de l’image après upload
+          this.imagePreview = getUrl(response.user.image);
           await this.openModal('success', response.user);
         },
         error: async (error) => {
@@ -73,7 +91,6 @@ export class SettingsComponent implements OnInit {
       this.selectedFile = file;
       this.user.image = file;
 
-      // ✅ Affichage de l’aperçu de l’image
       const reader = new FileReader();
       reader.onload = () => {
         this.imagePreview = reader.result;

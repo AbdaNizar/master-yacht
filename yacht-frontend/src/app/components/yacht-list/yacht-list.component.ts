@@ -5,9 +5,10 @@ import { getUrl, showAlert } from '../../constants/functions';
 import { AuthService } from '../../services/authService/auth.service';
 import { Router } from '@angular/router';
 import {HeaderComponent} from '../header/header.component';
-import Swal from 'sweetalert2';
 import {GoogleMap, MapMarker} from '@angular/google-maps';
 import {WebSocketService} from '../../services/webSocketService/web-socket.service';
+import { ToastService } from '../../services/toast.service';
+import { YachtAnalysisModalComponent } from '../yacht-analysis-modal/yacht-analysis-modal.component';
 
 @Component({
   selector: 'app-yacht-list',
@@ -16,7 +17,8 @@ import {WebSocketService} from '../../services/webSocketService/web-socket.servi
     HeaderComponent,
     GoogleMap,
     MapMarker,
-    SlicePipe
+    SlicePipe,
+    YachtAnalysisModalComponent
 ],
   templateUrl: './yacht-list.component.html',
   standalone: true,
@@ -30,15 +32,24 @@ export class YachtListComponent implements OnInit {
   isMapModalOpen = false;
   expandedDescriptions: { [key: string]: boolean } = {};
 
-
   center = { lat: 0, lng: 0 };
   zoom = 12;
+
+  isReviewsModalOpen = false;
+  selectedYacht: any = null;
+  averageRating = 0;
+  reviewCount = 0;
+  protected readonly Math = Math;
+  
+  isAiAnalysisModalOpen = false;
+  selectedYachtForAnalysis: any = null;
+
   constructor(
     private yachtService: YachtService,
     private authService: AuthService,
     private router: Router,
     private webSocketService: WebSocketService,
-
+    private toastService: ToastService
   ) {}
 
   ngOnInit(): void {
@@ -77,26 +88,24 @@ export class YachtListComponent implements OnInit {
       }
     });
   }
+
   openLocationModal(yacht: any): void {
     if (yacht.location) {
       const [lat, lng] = yacht.location.split(',').map((cord: string) => {
         return parseFloat(cord.trim());
       });
 
-      this.center =
-         { lat, lng }
-      ;
-
-this.isMapModalOpen =true
+      this.center = { lat, lng };
+      this.isMapModalOpen =true
     } else {
       console.error('Position non disponible');
     }
   }
 
-
   closeMapModal() {
     this.isMapModalOpen = false;
   }
+
   loadPublicYachts(): void {
     this.yachtService.getPublicYachts().subscribe({
       next: (data) => {
@@ -111,7 +120,6 @@ this.isMapModalOpen =true
       }
     });
   }
-
 
   nextImage(yacht: any, event: Event): void {
     event.stopPropagation();
@@ -134,6 +142,7 @@ this.isMapModalOpen =true
   resumeAutoSlide(yachtId: string): void {
     this.startAutoSlide(yachtId);
   }
+
   protected readonly getUrl = getUrl;
 
   editYacht(yacht: any): void {
@@ -155,24 +164,12 @@ this.isMapModalOpen =true
       const result = await showAlert(customAlertData);
       if (result.isConfirmed) {
         this.yachtService.deleteYacht(id).subscribe({
-          next: async () => {
+          next: () => {
             this.yachts = this.yachts.filter((yacht) => yacht._id !== id);
-            const customAlertData = {
-              title: 'Supprimé !',
-              html: "Le yacht a été supprimé avec succès.",
-              icon: 'success',
-              confirmButtonText: 'OK'
-            };
-            await showAlert(customAlertData);
+            this.toastService.success('Yacht supprimé avec succès');
           },
-          error: async (err) => {
-            const customAlertData = {
-              title: 'Erreur !',
-              html: "Une erreur s'est produite lors de la suppression.",
-              icon: 'error',
-              confirmButtonText: 'OK'
-            };
-            await showAlert(customAlertData);
+          error: (err) => {
+            this.toastService.error('Erreur lors de la suppression du yacht');
           },
         });
       }
@@ -199,27 +196,12 @@ this.isMapModalOpen =true
       const result = await showAlert(customAlertData);
       if (result.isConfirmed) {
         this.yachtService.togglePublicStatus(yacht._id).subscribe({
-          next: async (response) => {
+          next: (response) => {
             yacht.isPublic = response.isPublic;
-
-            const successAlertData = {
-              title: 'Statut modifié !',
-              html: `Le yacht est maintenant ${
-                response.isPublic ? 'Public' : 'Privé'
-              }.`,
-              icon: 'success',
-              confirmButtonText: 'OK',
-            };
-            await showAlert(successAlertData);
+            this.toastService.success(`Yacht maintenant ${response.isPublic ? 'Public' : 'Privé'}`);
           },
-          error: async (err) => {
-            const errorAlertData = {
-              title: 'Erreur !',
-              html: 'Une erreur s\'est produite lors de la modification du statut.',
-              icon: 'error',
-              confirmButtonText: 'OK',
-            };
-            await showAlert(errorAlertData);
+          error: (err) => {
+            this.toastService.error('Erreur lors de la modification du statut');
           },
         });
       }
@@ -228,67 +210,71 @@ this.isMapModalOpen =true
     }
   }
 
-
-
   goToBooking(yacht: any): void {
     if (this.role !== 'owner') {
       this.router.navigate(['/dashboard/client/bookings', yacht._id]);
     }
   }
 
-  showReviews(yacht: { reviews: any[]; name: any; }) {
+  showReviews(yacht: any, event?: Event): void {
+    if (event) {
+      event.stopPropagation();
+    }
+
     if (!yacht.reviews || yacht.reviews.length === 0) {
-      Swal.fire({
-        title: 'Aucun avis',
-        text: 'Ce yacht n\'a pas encore de commentaires.',
-        icon: 'info',
-        confirmButtonText: 'OK',
-        customClass: {
-          popup: 'custom-swal-bg' // Add Custom Class
-        }
-      });
+      this.toastService.info('Ce yacht n\'a pas encore de commentaires.');
       return;
     }
 
-    let reviewHtml = yacht.reviews.map(review => `
-    <div class="review-item">
-      <img src="${this.getUrl(review.client.image) || 'assets/default-avatar.png'}"
-           class="client-avatar" />
-      <div class="review-text">
-        <div class="rating-stars">
-          ${this.getStars(review.rating)}
-        </div>
-        <strong>${review.client.name}</strong>
-        <p class="review-comment">${review.comment}</p>
-      </div>
-    </div>
-  `).join('');
-
-    Swal.fire({
-      title: `${yacht.reviews.length} avis pour ${yacht.name}`,
-      html: `<div class="reviews-container">${reviewHtml}</div>`,
-      confirmButtonText: 'Fermer',
-      width: '600px',
-      customClass: {
-        popup: 'custom-swal-bg'
-      }
-    });
+    this.selectedYacht = yacht;
+    this.reviewCount = yacht.reviews.length;
+    this.averageRating = yacht.averageRating ||
+      (yacht.reviews.reduce((sum: number, r: any) => sum + r.rating, 0) / this.reviewCount);
+    this.isReviewsModalOpen = true;
   }
 
-  getStars(rating: number) {
-    let stars = '';
-    for (let i = 1; i <= 5; i++) {
-      stars += `<span class="star" style="color:${i <= rating ? '#FFD700' : '#ccc'}">★</span>`;
-    }
-    return stars;
+  closeReviewsModal(): void {
+    this.isReviewsModalOpen = false;
+    this.selectedYacht = null;
   }
 
-
+  formatDate(date: any): string {
+    if (!date) return '';
+    const d = new Date(date);
+    const options: Intl.DateTimeFormatOptions = {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    };
+    return d.toLocaleDateString('fr-FR', options);
+  }
 
   toggleDescription(yachtId: string, event: Event): void {
     event.stopPropagation();
     this.expandedDescriptions[yachtId] = !this.expandedDescriptions[yachtId];
+  }
 
-}
+  getRatingCount(rating: number): number {
+    if (!this.selectedYacht?.reviews) return 0;
+    return this.selectedYacht.reviews.filter((r: any) => r.rating === rating).length;
+  }
 
+  getRatingPercentage(rating: number): number {
+    if (!this.selectedYacht?.reviews || this.selectedYacht.reviews.length === 0) return 0;
+    const count = this.getRatingCount(rating);
+    return (count / this.selectedYacht.reviews.length) * 100;
+  }
+
+  openAiAnalysis(yacht: any, event?: Event): void {
+    if (event) {
+      event.stopPropagation();
+    }
+    this.selectedYachtForAnalysis = yacht;
+    this.isAiAnalysisModalOpen = true;
+  }
+
+  closeAiAnalysisModal(): void {
+    this.isAiAnalysisModalOpen = false;
+    this.selectedYachtForAnalysis = null;
+  }
 }

@@ -6,6 +6,7 @@ yacht-backend/.env
 # Angular
 yacht-frontend/node_modules/
 yacht-frontend/dist/
+yacht-frontend/.vscode/
 
 # MacOS and Windows files (optional but recommended)
 .DS_Store

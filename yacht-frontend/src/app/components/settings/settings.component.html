@@ -1,39 +1,143 @@
-<app-header></app-header>
+<div class="settings-container">
+  <div class="settings-header">
+    <div class="header-content">
+      <i class="fas fa-user-cog"></i>
+      <div>
+        <h1>Paramètres du Profil</h1>
+        <p>Gérez vos informations personnelles</p>
+      </div>
+    </div>
+  </div>
 
-<div class="profile-container">
-  <h2>Modifier mon profil</h2>
-
-  <form (ngSubmit)="onSubmit(updateUserForm)" #updateUserForm="ngForm">
-    <div class="profile-image-container">
-      <label for="fileUpload" class="profile-image-label">
-        <img [src]="imagePreview" class="profile-image" alt="Profile Image">
-
-      </label>
-      <input type="file" (change)="onFileSelected($event)" id="fileUpload" hidden>
+  <form (ngSubmit)="onSubmit(updateUserForm)" #updateUserForm="ngForm" class="settings-form">
+    <div class="profile-section">
+      <div class="profile-image-section">
+        <div class="image-wrapper">
+          <label for="fileUpload" class="image-label">
+            <img [src]="imagePreview" class="profile-image" alt="Profile">
+            <div class="image-overlay">
+              <i class="fas fa-camera"></i>
+              <span>Changer</span>
+            </div>
+          </label>
+          <input type="file" (change)="onFileSelected($event)" id="fileUpload" accept="image/*" hidden>
+        </div>
+        <div class="image-info">
+          <h3>Photo de profil</h3>
+          <p>JPG, PNG ou GIF (max. 5MB)</p>
+        </div>
+      </div>
     </div>
 
-    <div class="form-group">
-      <label for="name">Nom</label>
-      <input id="name" type="text" [(ngModel)]="user.name" name="name" required>
-    </div>
+    <div class="form-sections">
+      <div class="form-section">
+        <div class="section-header">
+          <i class="fas fa-user"></i>
+          <h2>Informations Personnelles</h2>
+        </div>
+        
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="name">
+              <i class="fas fa-signature"></i>
+              Nom complet
+            </label>
+            <input 
+              id="name" 
+              type="text" 
+              [(ngModel)]="user.name" 
+              name="name" 
+              placeholder="Entrez votre nom"
+              required>
+          </div>
 
-    <div class="form-group">
-      <label for="email">Email</label>
-      <input id="email" type="email" [(ngModel)]="user.email" name="email" required>
-    </div>
+          <div class="form-group">
+            <label for="email">
+              <i class="fas fa-envelope"></i>
+              Adresse email
+            </label>
+            <input 
+              id="email" 
+              type="email" 
+              [(ngModel)]="user.email" 
+              name="email" 
+              placeholder="votre@email.com"
+              disabled
+              required>
+          </div>
+        </div>
+      </div>
 
-    <div class="form-group">
-      <label for="currentPassword">Mot de passe actuel</label>
-      <input id="currentPassword" type="password" [(ngModel)]="currentPassword" name="currentPassword">
-    </div>
+      <div class="form-section">
+        <div class="section-header">
+          <i class="fas fa-lock"></i>
+          <h2>Sécurité</h2>
+        </div>
+        
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="currentPassword">
+              <i class="fas fa-key"></i>
+              Mot de passe actuel
+            </label>
+            <input 
+              id="currentPassword" 
+              type="password" 
+              [(ngModel)]="currentPassword" 
+              name="currentPassword"
+              placeholder="Mot de passe actuel">
+          </div>
 
-    <div class="form-group">
-      <label for="newPassword">Nouveau mot de passe</label>
-      <input id="newPassword" type="password" [(ngModel)]="newPassword" name="newPassword">
+          <div class="form-group">
+            <label for="newPassword">
+              <i class="fas fa-lock-open"></i>
+              Nouveau mot de passe
+            </label>
+            <input 
+              id="newPassword" 
+              type="password" 
+              [(ngModel)]="newPassword" 
+              name="newPassword"
+              placeholder="Nouveau mot de passe">
+          </div>
+
+          <div class="form-group form-group-full">
+            <label for="confirmPassword">
+              <i class="fas fa-check-circle"></i>
+              Confirmer le nouveau mot de passe
+            </label>
+            <input 
+              id="confirmPassword" 
+              type="password" 
+              [(ngModel)]="confirmPassword" 
+              name="confirmPassword"
+              placeholder="Confirmez le nouveau mot de passe">
+          </div>
+        </div>
+
+        @if (passwordMismatch) {
+          <div class="password-error">
+            <i class="fas fa-exclamation-triangle"></i>
+            <p>Les mots de passe ne correspondent pas</p>
+          </div>
+        }
+
+        <div class="password-hint">
+          <i class="fas fa-info-circle"></i>
+          <p>Laissez vide si vous ne souhaitez pas changer votre mot de passe</p>
+        </div>
+      </div>
     </div>
 
     <div class="form-actions">
-      <button type="submit" class="btn save-btn" [disabled]="!updateUserForm.form.valid">Mettre à jour</button>
+      <button type="button" class="btn btn-cancel" (click)="getUserProfile()">
+        <i class="fas fa-times"></i>
+        Annuler
+      </button>
+      <button type="submit" class="btn btn-save" [disabled]="!updateUserForm.form.valid || passwordMismatch">
+        <i class="fas fa-save"></i>
+        Enregistrer les modifications
+      </button>
     </div>
   </form>
 </div>

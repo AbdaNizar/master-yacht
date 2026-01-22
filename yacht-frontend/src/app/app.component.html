@@ -1,15 +1,20 @@
-<div class="app-container">
+<!-- Toast Container Global -->
+<app-toast-container></app-toast-container>
+
+<div class="app-container" [class.initialized]="showSidebar">
+  <!-- Header -->
   @if (showSidebar) {
-    <header class="app-header">
-    </header>
-
-
+    <app-header [class.sidebar-collapsed]="isSidebarCollapsed"></app-header>
   }
+
+  <!-- Main Content -->
   <main class="app-main">
     @if (showSidebar) {
       <div class="dashboard-layout">
         <app-sidebar></app-sidebar>
-        <div  class="content">
+        <div class="content" 
+             [class.sidebar-collapsed]="isSidebarCollapsed"
+             [class.content-ready]="showSidebar">
           <router-outlet></router-outlet>
         </div>
       </div>
@@ -17,9 +22,4 @@
       <router-outlet></router-outlet>
     }
   </main>
-  @if (showSidebar) {
-    <footer class="app-footer">
-      <!-- Footer Content -->
-    </footer>
-  }
 </div>

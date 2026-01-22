@@ -6,11 +6,13 @@ import {UserService} from '../../services/userService/user.service';
 import {showAlert} from '../../constants/functions';
 import {Router} from '@angular/router';
 import {AuthService} from '../../services/authService/auth.service';
+import {ButtonLoaderComponent} from '../button-loader/button-loader.component';
 
 @Component({
   selector: 'app-create-user',
   imports: [
-    FormsModule
+    FormsModule,
+    ButtonLoaderComponent
   ],
   templateUrl: './create-user.component.html',
   standalone: true,
@@ -24,13 +26,17 @@ export class CreateUserComponent {
     role: Role.CLIENT,
     image : null
   };
-  acceptedTerms: boolean = false
+  acceptedTerms: boolean = false;
+  showPassword: boolean = false;
+  selectedFileName: string = '';
+  isLoading: boolean = false;
 
-  constructor(private userService: UserService,private authService :AuthService,private router: Router) {
+  constructor(private userService: UserService, private authService: AuthService, private router: Router) {
   }
 
   onSubmit(form: any): void {
     if (form.valid) {
+      this.isLoading = true;
       const formData = new FormData();
       formData.append('name', this.user.name);
       formData.append('email', this.user.email);
@@ -41,42 +47,40 @@ export class CreateUserComponent {
       }
       this.userService.createUser(formData).subscribe({
         next: async (response) => {
-
-          await this.openModal('success')
+          this.isLoading = false;
+          await showAlert({
+            title: '<strong>Inscription réussie</strong>',
+            icon: 'success',
+            html: 'Votre compte a été enregistré avec succès. La validation de votre compte sera effectuée dans les plus brefs délais. <br><br> 📧 <strong>Vous recevrez un e-mail</strong> lorsque votre compte sera validé.',
+            confirmButtonText: 'OK'
+          }).then((result) => {
+            if (result.isConfirmed) {
+              this.router.navigate(['/login']);
+            }
+          });
         },
         error: async (error) => {
-          await this.openModal('error')
+          this.isLoading = false;
+          await showAlert({
+            title: '<strong>Erreur</strong>',
+            icon: 'error',
+            html: error.error.message || 'Une erreur est survenue lors de l\'inscription.',
+            confirmButtonText: 'OK'
+          });
         },
       });
     }
   }
+
   onFileSelected(event: Event): void {
     const file = (event.target as HTMLInputElement).files?.[0];
     if (file) {
       this.user.image = file;
+      this.selectedFileName = file.name;
     }
   }
-  async openModal(status: string = '', user: any = {}) {
-    const customAlertData = {
-      title: status == 'error' ? `<strong>Attention !!</strong>` : '<strong>Inscription réussie</strong>',
-      icon: status,
-      html: status == 'error'
-        ? 'Une erreur est survenue lors de l\'inscription.'
-        : 'Votre compte a été enregistré avec succès. La validation de votre compte sera effectuée dans les plus brefs délais. <br><br> 📧 <strong>Vous recevrez un e-mail</strong> lorsque votre compte sera validé.',
-      confirmButtonText: 'OK'
-    };
 
-    try {
-      const result = await showAlert(customAlertData);
-      if (result.isConfirmed && status != 'error') {
-        this.router.navigate(['/login']); // Redirection vers la page de connexion après inscription
-      }
-    } catch (error) {
-      console.error('❌ Erreur lors de l\'affichage du message :', error);
-    }
-  }
   goToRegister() {
-    return  this.router.navigate(['/login']);
-
+    return this.router.navigate(['/login']);
   }
 }

@@ -7,6 +7,7 @@ import {FormsModule} from '@angular/forms';
 import {getUrl, showAlert} from '../../constants/functions';
 import {AuthService} from '../../services/authService/auth.service';
 import {HeaderComponent} from '../header/header.component';
+import {ButtonLoaderComponent} from '../button-loader/button-loader.component';
 
 @Component({
   selector: 'app-booking',
@@ -15,7 +16,8 @@ import {HeaderComponent} from '../header/header.component';
     FormsModule,
     HeaderComponent,
     DatePipe,
-    SlicePipe
+    SlicePipe,
+    ButtonLoaderComponent
 ],
   templateUrl: './booking.component.html',
   standalone: true,
@@ -30,6 +32,7 @@ export class BookingComponent implements OnInit  {
   errorMessage = '';
   user:any;
   minDate = new Date().toISOString().split('T')[0];
+  isLoading = false;
   @ViewChild('carouselElement', { static: false }) carousel!: ElementRef;
   currentImageIndex = 0;
   intervalId: any;
@@ -134,8 +137,10 @@ export class BookingComponent implements OnInit  {
       endDate: this.endDate,
     };
 
+    this.isLoading = true;
     this.bookingService.bookYacht(this.yacht._id, bookingData).subscribe({
       next: () => {
+        this.isLoading = false;
         showAlert({
           title: 'Succès',
           html: 'Réservation effectuée avec succès !',
@@ -146,6 +151,7 @@ export class BookingComponent implements OnInit  {
         });
       },
       error: (err) => {
+        this.isLoading = false;
         showAlert({
           title: 'Erreur',
           html: err.error.message || 'Une erreur est survenue.',
@@ -159,5 +165,13 @@ export class BookingComponent implements OnInit  {
   toggleExpand(review: any): void {
     review.expanded = !review.expanded;
   }
+
+  getDaysCount(): number {
+    if (this.startDate && this.endDate) {
+      return Math.ceil((new Date(this.endDate).getTime() - new Date(this.startDate).getTime()) / (1000 * 60 * 60 * 24));
+    }
+    return 0;
+  }
+
   protected readonly getUrl = getUrl;
 }

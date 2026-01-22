@@ -1,87 +1,222 @@
 <app-header></app-header>
+
 <div class="form-container">
-  <h1>{{ isEditMode ? 'Modifier' : 'Ajouter' }} un yacht</h1>
-  <form #yachtForm="ngForm" (ngSubmit)="onSubmit(yachtForm)">
+  <div class="page-header">
+    <div class="header-icon">
+      <i class="fas fa-ship"></i>
+    </div>
+    <div class="header-text">
+      <h1>{{ isEditMode ? 'Modifier' : 'Ajouter' }} un yacht</h1>
+      <p>{{ isEditMode ? 'Modifiez les informations de votre yacht' : 'Créez une nouvelle annonce pour votre yacht' }}</p>
+    </div>
+  </div>
 
-    <div class="form-group">
-      <label for="name">Nom du yacht</label>
-      <input type="text" id="name" name="name" class="input-field"
-        [(ngModel)]="yacht.name" required placeholder="Entrez le nom du yacht" />
+  <form #yachtForm="ngForm" (ngSubmit)="onSubmit(yachtForm)" class="yacht-form">
+    <div class="form-grid">
+      <div class="form-group">
+        <label for="name">
+          <i class="fas fa-ship"></i>
+          Nom du yacht
+        </label>
+        <input 
+          type="text" 
+          id="name" 
+          name="name" 
+          class="input-field"
+          [(ngModel)]="yacht.name" 
+          required 
+          placeholder="Ex: Ocean Dream" />
+      </div>
+
+      <div class="form-group full-width">
+        <label for="description">
+          <i class="fas fa-align-left"></i>
+          Description
+        </label>
+        <textarea 
+          id="description" 
+          name="description" 
+          class="input-field"
+          [(ngModel)]="yacht.description" 
+          required 
+          rows="4"
+          placeholder="Décrivez votre yacht en détail..."></textarea>
       </div>
 
       <div class="form-group">
-        <label for="description">Description</label>
-        <textarea id="description" name="description" class="input-field"
-        [(ngModel)]="yacht.description" required placeholder="Entrez une description du yacht"></textarea>
+        <label for="price">
+          <i class="fas fa-coins"></i>
+          Prix par jour (DT)
+        </label>
+        <input 
+          type="number" 
+          id="price" 
+          name="price" 
+          class="input-field"
+          [(ngModel)]="yacht.pricePerDay" 
+          required 
+          placeholder="0" />
       </div>
 
       <div class="form-group">
-        <label for="price">Prix par jour (en DT)</label>
-        <input type="number" id="price" name="price" class="input-field"
-          [(ngModel)]="yacht.pricePerDay" required placeholder="Entrez le prix par jour" />
+        <label for="capacity">
+          <i class="fas fa-users"></i>
+          Capacité (personnes)
+        </label>
+        <input 
+          type="number" 
+          id="capacity" 
+          name="capacity" 
+          class="input-field"
+          [(ngModel)]="yacht.capacity" 
+          required 
+          placeholder="0" />
+      </div>
+
+      <div class="form-group full-width">
+        <label for="location">
+          <i class="fas fa-map-marker-alt"></i>
+          Position du yacht
+        </label>
+        <div class="location-input-wrapper">
+          <input 
+            type="text" 
+            id="location" 
+            name="location" 
+            class="input-field location-input"
+            [(ngModel)]="yacht.location" 
+            required 
+            placeholder="Cliquez pour sélectionner sur la carte"
+            readonly />
+          <button type="button" class="btn-map" (click)="openMapModal()">
+            <i class="fas fa-map-marked-alt"></i>
+            Sélectionner sur la carte
+          </button>
+        </div>
+      </div>
+
+      <div class="form-group full-width">
+        <label for="images">
+          <i class="fas fa-images"></i>
+          Images du yacht
+        </label>
+        <div class="file-upload-wrapper">
+          <input
+            type="file"
+            id="images"
+            name="images"
+            class="file-input"
+            (change)="onFileSelected($event)"
+            multiple
+            accept="image/*"
+            #fileInput />
+          <label for="images" class="file-upload-label">
+            <i class="fas fa-cloud-upload-alt"></i>
+            <span>Cliquez pour ajouter des images</span>
+            <small>ou glissez-déposez vos fichiers</small>
+          </label>
+        </div>
+      </div>
+
+      @if (previewImages.length > 0) {
+        <div class="form-group full-width">
+          <div class="image-preview-container">
+            @for (image of previewImages; track image; let i = $index) {
+              <div class="image-preview">
+                <img [src]="image" alt="Yacht Image Preview">
+                <button type="button" class="remove-btn" (click)="removeImage(i)">
+                  <i class="fas fa-times"></i>
+                </button>
+              </div>
+            }
+          </div>
+        </div>
+      }
+    </div>
+
+    <div class="form-actions">
+      <app-button-loader 
+        type="submit" 
+        [loading]="isLoading"
+        [disabled]="!yachtForm.valid"
+        buttonClass="btn-submit">
+        <i class="fas fa-save"></i>
+        {{ isEditMode ? 'Modifier le yacht' : 'Ajouter le yacht' }}
+      </app-button-loader>
+    </div>
+  </form>
+</div>
+
+<!-- Modern Map Modal -->
+@if (isMapModalOpen) {
+  <div class="map-modal-overlay" (click)="closeMapModal()">
+    <div class="map-modal-container" (click)="$event.stopPropagation()">
+      <button class="map-modal-close" (click)="closeMapModal()">
+        <i class="fas fa-times"></i>
+      </button>
+
+      <div class="map-modal-header">
+        <div class="header-icon-map">
+          <i class="fas fa-map-marker-alt"></i>
+        </div>
+        <div class="header-content-map">
+          <h2>Sélectionnez la position du yacht</h2>
+          <p>Cliquez sur la carte ou déplacez le marqueur</p>
+        </div>
+      </div>
+
+      <div class="map-modal-body">
+        <div class="coordinates-display">
+          <div class="coordinate-item">
+            <i class="fas fa-location-arrow"></i>
+            <span class="coord-label">Latitude:</span>
+            <span class="coord-value">{{ selectedPosition.lat.toFixed(6) }}</span>
+          </div>
+          <div class="coordinate-item">
+            <i class="fas fa-location-arrow"></i>
+            <span class="coord-label">Longitude:</span>
+            <span class="coord-value">{{ selectedPosition.lng.toFixed(6) }}</span>
+          </div>
         </div>
 
-        <div class="form-group">
-          <label for="capacity">Capacité (en personnes)</label>
-          <input type="number" id="capacity" name="capacity" class="input-field"
-            [(ngModel)]="yacht.capacity" required placeholder="Entrez la capacité" />
-          </div>
+        <div class="map-wrapper">
+          <google-map
+            height="500px" 
+            width="100%"
+            [center]="center"
+            [zoom]="zoom"
+            [options]="mapOptions"
+            (mapClick)="onMapClick($event)">
+            <map-marker
+              [position]="selectedPosition"
+              [options]="markerOptions"
+              (mapDragend)="onMarkerDragEnd($event)">
+            </map-marker>
+          </google-map>
+        </div>
 
-          <div class="form-group">
-            <label for="location">Position du yacht</label>
-            <input type="text" id="location" name="location" class="input-field"
-              [(ngModel)]="yacht.location" required placeholder="Cliquez pour sélectionner la position"
-              (click)="openMapModal()" readonly />
-            </div>
+        <div class="map-controls">
+          <button class="btn-map-action btn-reset" (click)="resetLocation()">
+            <i class="fas fa-redo"></i>
+            Réinitialiser
+          </button>
+          <button class="btn-map-action btn-current" (click)="getCurrentLocation()">
+            <i class="fas fa-crosshairs"></i>
+            Ma position
+          </button>
+        </div>
+      </div>
 
-            <div class="form-group">
-              <label for="images">Images du yacht</label>
-              <input
-                type="file"
-                id="images"
-                name="images"
-                class="input-field"
-                (change)="onFileSelected($event)"
-                multiple
-                accept="image/*"
-                />
-              </div>
-
-              <div class="image-preview-container">
-                @for (image of previewImages; track image; let i = $index) {
-                  <div class="image-preview">
-                    <img [src]="image" alt="Yacht Image Preview">
-                    <button type="button" class="remove-btn" (click)="removeImage(i)">❌</button>
-                  </div>
-                }
-              </div>
-
-
-              <button type="submit" class="btn" [disabled]="!yachtForm.valid">
-                {{ isEditMode ? 'Modifier' : 'Ajouter' }}
-              </button>
-            </form>
-          </div>
-
-          @if (isMapModalOpen) {
-            <div class="modal">
-              <div class="modal-content">
-                <span class="close" (click)="closeMapModal()">&times;</span>
-                <h3>Sélectionnez la position du yacht</h3>
-                <google-map
-                  height="400px" width="100%"
-                  [center]="center"
-                  [zoom]="zoom"
-                  (mapClick)="onMapClick($event)">
-                  <map-marker
-                    #marker
-                    [position]="selectedPosition"
-                    [options]="{draggable: true}"
-                    (mapClick)="onMarkerDragEnd($event)" >
-                  </map-marker>
-                </google-map>
-                <button class="btn btn-save" (click)="confirmLocation()">Valider la position</button>
-              </div>
-            </div>
-          }
-
+      <div class="map-modal-footer">
+        <button class="btn-cancel-map" (click)="closeMapModal()">
+          <i class="fas fa-times"></i>
+          Annuler
+        </button>
+        <button class="btn-confirm-map" (click)="confirmLocation()">
+          <i class="fas fa-check"></i>
+          Confirmer la position
+        </button>
+      </div>
+    </div>
+  </div>
+}

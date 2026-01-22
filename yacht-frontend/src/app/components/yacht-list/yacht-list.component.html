@@ -1,4 +1,4 @@
-<app-header></app-header>
+<!-- yacht.component.html -->
 <div class="yacht-container">
   <h1 class="title">
     {{ role === 'owner' ? 'Mes yachts' : 'Yachts disponibles' }}
@@ -18,102 +18,210 @@
   <div class="yacht-list">
     @for (yacht of yachts; track yacht) {
       <div class="yacht-card"
-        (click)="goToBooking(yacht)"
-        [class.clickable]="role !== 'owner'">
-        @if (role === 'owner' && yacht.averageRating) {
+           (click)="goToBooking(yacht)"
+           [class.clickable]="role !== 'owner'">
+
+        @if (yacht.averageRating) {
           <span>
             <div class="rating-container"
-              (click)="showReviews(yacht)">
-              @for (star of [1,2,3,4,5]; track star) {
-                <span class="star"
-                [class.filled]="star <= yacht.averageRating">★</span>
-              }
+                 (click)="showReviews(yacht, $event)">
+              <div class="rating-stars-badge">
+                @for (star of [1,2,3,4,5]; track star) {
+                  <span class="star" [class.filled]="star <= yacht.averageRating">★</span>
+                }
+              </div>
+              <span class="rating-number">{{ yacht.averageRating.toFixed(1) }}</span>
             </div>
           </span>
         }
-        @if (role != 'owner' && yacht.averageRating) {
-          <span>
-            <div class="rating-container"
-              (mouseenter)="showReviews(yacht)">
-              @for (star of [1,2,3,4,5]; track star) {
-                <span class="star"
-                [class.filled]="star <= yacht.averageRating">★</span>
-              }
-            </div>
-          </span>
-        }
+
         @if (role === 'owner' && !yacht.isValidatedByAdmin) {
           <div class="verification-status">
             ⏳ En attente
           </div>
         }
+
         @if (role === 'owner' && yacht.isValidatedByAdmin) {
           <div class="icon-container"
-            (click)="togglePublicStatus(yacht); $event.stopPropagation()"
-            [title]="yacht.isPublic ? 'Rendre Privé' : 'Rendre Public'">
+               (click)="togglePublicStatus(yacht); $event.stopPropagation()"
+               [title]="yacht.isPublic ? 'Rendre Privé' : 'Rendre Public'">
             <i [ngClass]="yacht.isPublic ? 'icon-public' : 'icon-private'"></i>
           </div>
         }
+
         <div class="image-container">
           <img [src]="getUrl(yacht.images[currentImageIndex[yacht._id]]) || 'assets/img/default-yacht.jpg'"
-            alt="{{ yacht.name }}"
-            class="yacht-image"
-            (mouseenter)="pauseAutoSlide(yacht._id)"
-            (mouseleave)="resumeAutoSlide(yacht._id)"/>
-            <button class="next-btn" (click)="nextImage(yacht, $event)">&#10095;</button>
-          </div>
-          <div class="yacht-info">
-            <h3 class="yacht-title">{{ yacht.name }}</h3>
-            <div class="description">
-              @if (!expandedDescriptions[yacht._id]) {
-                <span>
-                  {{ yacht.description.length > 100 ? (yacht.description | slice:0:100) + '...' : yacht.description }}
-                </span>
-              }
-              @if (expandedDescriptions[yacht._id]) {
-                <span>
-                  {{ yacht.description }}
-                </span>
-              }
-              <span class="toggle-description" (click)="toggleDescription(yacht._id, $event)">
-                {{ expandedDescriptions[yacht._id] ? 'Afficher moins' : yacht.description.length > 100 ? 'Afficher plus' :'' }}
+               alt="{{ yacht.name }}"
+               class="yacht-image"
+               (mouseenter)="pauseAutoSlide(yacht._id)"
+               (mouseleave)="resumeAutoSlide(yacht._id)"/>
+          <button class="next-btn" (click)="nextImage(yacht, $event)">&#10095;</button>
+        </div>
+
+        <div class="yacht-info">
+          <h3 class="yacht-title">{{ yacht.name }}</h3>
+
+          <div class="description">
+            @if (!expandedDescriptions[yacht._id]) {
+              <span>
+                {{ yacht.description.length > 100 ? (yacht.description | slice:0:100) + '...' : yacht.description }}
               </span>
-            </div>
-            <div class="yacht-meta">
-              <span class="price">{{ yacht.pricePerDay  }} Dt/Jour</span>
-              <span class="capacity">👥 {{ yacht.capacity }}</span>
-            </div>
+            }
+            @if (expandedDescriptions[yacht._id]) {
+              <span>
+                {{ yacht.description }}
+              </span>
+            }
+
+            <span class="toggle-description"
+                  (click)="toggleDescription(yacht._id, $event)">
+              {{ expandedDescriptions[yacht._id] ? 'Afficher moins' : yacht.description.length > 100 ? 'Afficher plus' :'' }}
+            </span>
           </div>
-          <div class="actions" >
-            @if (role === 'owner') {
-              <button class="btn edit" (click)="editYacht(yacht); $event.stopPropagation()">Modifier</button>
-            }
-            <button class="btn location" (click)="openLocationModal(yacht); $event.stopPropagation()">Consulter la Position</button>
-            @if (role === 'owner') {
-              <button class="btn delete" (click)="deleteYacht(yacht._id); $event.stopPropagation()">Supprimer</button>
-            }
+
+          <div class="yacht-meta">
+            <span class="price">{{ yacht.pricePerDay }} Dt/Jour</span>
+            <span class="capacity">👥 {{ yacht.capacity }}</span>
           </div>
         </div>
-      }
-    </div>
+
+        <div class="actions">
+          @if (role === 'owner') {
+            <button class="btn edit" (click)="editYacht(yacht); $event.stopPropagation()">Modifier</button>
+          }
+
+          <button class="btn location" (click)="openLocationModal(yacht); $event.stopPropagation()">
+            Consulter la Position
+          </button>
+
+          <button class="btn ai-analysis" (click)="openAiAnalysis(yacht, $event)">
+            <i class="fas fa-brain"></i> Analyse IA
+          </button>
+
+          @if (role === 'owner') {
+            <button class="btn delete" (click)="deleteYacht(yacht._id); $event.stopPropagation()">Supprimer</button>
+          }
+        </div>
+      </div>
+    }
   </div>
+
   @if (isMapModalOpen) {
     <div class="modal">
       <div class="modal-content">
         <span class="close" (click)="closeMapModal()">&times;</span>
         <h3>Position du Yacht</h3>
-        <google-map
-          height="400px" width="100%"
-          [center]="center"
-          [zoom]="zoom"
-          >
-          <map-marker
-            #marker
-            [position]="center"
-            [options]="{draggable: true}"
-            >
+
+        <google-map height="400px"
+                    width="100%"
+                    [center]="center"
+                    [zoom]="zoom">
+          <map-marker #marker
+                      [position]="center"
+                      [options]="{draggable: true}">
           </map-marker>
         </google-map>
       </div>
     </div>
   }
+
+  <!-- ✅ REVIEWS MODAL FIXED -->
+  @if (isReviewsModalOpen) {
+    <div class="reviews-modal-overlay" (click)="closeReviewsModal()">
+      <div class="reviews-modal-container" (click)="$event.stopPropagation()">
+
+        <button class="modal-close-btn" (click)="closeReviewsModal()">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+               viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+
+        <!-- Header (titre uniquement) -->
+        <div class="reviews-modal-header">
+          <div class="yacht-name-section">
+            <h2 class="yacht-name">{{ selectedYacht?.name }}</h2>
+            <p class="yacht-subtitle">Avis des clients</p>
+          </div>
+        </div>
+
+        <!-- ✅ Body 2 colonnes -->
+        <div class="reviews-modal-body">
+          <!-- Colonne gauche: stats -->
+          <div class="rating-summary">
+            <div class="rating-main">
+              <div class="rating-score-large">{{ averageRating.toFixed(1) }}</div>
+
+              <div class="rating-stars-main">
+                @for (star of [1,2,3,4,5]; track star) {
+                  <span class="star-main" [class.filled]="star <= Math.round(averageRating)">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28"
+                         viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/>
+                    </svg>
+                  </span>
+                }
+              </div>
+
+              <p class="review-count-text">{{ reviewCount }} avis</p>
+
+              <div class="rating-distribution">
+                @for (rating of [5,4,3,2,1]; track rating) {
+                  <div class="rating-bar-row">
+                    <span class="rating-label">{{ rating }}</span>
+                    <div class="rating-bar">
+                      <div class="rating-bar-fill" [style.width.%]="getRatingPercentage(rating)"></div>
+                    </div>
+                    <span class="rating-count">{{ getRatingCount(rating) }}</span>
+                  </div>
+                }
+              </div>
+            </div>
+          </div>
+
+          <!-- Colonne droite: commentaires -->
+          <div class="reviews-list">
+            @for (review of selectedYacht?.reviews; track review._id) {
+              <div class="review-card">
+                <div class="review-header-info">
+                  <img [src]="getUrl(review.client?.image) || 'assets/default-avatar.png'"
+                       class="reviewer-avatar"
+                       [alt]="review.client?.name || 'Client'" />
+                  <div class="reviewer-info">
+                    <h4 class="reviewer-name">{{ review.client?.name || 'Client anonyme' }}</h4>
+                    <div class="review-meta">
+                      <div class="review-stars">
+                        @for (star of [1,2,3,4,5]; track star) {
+                          <span class="star-small" [class.filled]="star <= review.rating">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                                 viewBox="0 0 24 24" fill="currentColor">
+                              <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/>
+                            </svg>
+                          </span>
+                        }
+                      </div>
+                      <span class="review-date">{{ formatDate(review.createdAt) }}</span>
+                    </div>
+                  </div>
+                </div>
+
+                @if (review.comment) {
+                  <div class="review-content">
+                    <p class="review-text">{{ review.comment }}</p>
+                  </div>
+                }
+              </div>
+            }
+          </div>
+        </div>
+      </div>
+    </div>
+  }
+
+  <app-yacht-analysis-modal
+    [isOpen]="isAiAnalysisModalOpen"
+    [yacht]="selectedYachtForAnalysis"
+    (close)="closeAiAnalysisModal()">
+  </app-yacht-analysis-modal>
+</div>

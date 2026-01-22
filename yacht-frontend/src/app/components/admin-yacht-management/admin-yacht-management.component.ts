@@ -5,6 +5,7 @@ import {getUrl} from '../../constants/functions';
 import { NgClass } from '@angular/common';
 import {HeaderComponent} from '../header/header.component';
 import {GoogleMap, MapMarker} from '@angular/google-maps';
+import {ButtonLoaderComponent} from '../button-loader/button-loader.component';
 
 @Component({
   selector: 'app-admin-yacht-management',
@@ -12,7 +13,8 @@ import {GoogleMap, MapMarker} from '@angular/google-maps';
     NgClass,
     HeaderComponent,
     GoogleMap,
-    MapMarker
+    MapMarker,
+    ButtonLoaderComponent
 ],
   templateUrl: './admin-yacht-management.component.html',
   standalone: true,
@@ -26,6 +28,7 @@ export class AdminYachtManagementComponent implements OnInit {
   center = {lat: 0, lng: 0};
   zoom = 12;
   currentImage: string[] = [];
+  loadingYachts: { [key: string]: boolean } = {};
 
 
   constructor(private adminService: AdminService, private toastr: ToastrService) {
@@ -85,8 +88,9 @@ export class AdminYachtManagementComponent implements OnInit {
   }
 
   approveYacht(yacht: any) {
+    this.loadingYachts[yacht._id] = true;
     this.adminService.approveYacht(yacht._id).subscribe(() => {
-      console.log('yacht', yacht)
+      this.loadingYachts[yacht._id] = false;
       !yacht.isValidatedByAdmin ? this.toastr.success(' Yacht approuvé avec succès!') : this.toastr.success(' Yacht blockée avec succès!');
       this.loadYachts();
     });

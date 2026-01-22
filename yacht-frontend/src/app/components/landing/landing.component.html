@@ -1,0 +1,294 @@
+<!-- ============================================
+     🚀 LANDING PAGE - MASTER YACHT
+     ============================================ -->
+
+<!-- Navigation Sticky -->
+<nav class="landing-nav" [class.scrolled]="isScrolled">
+  <div class="nav-container">
+    <div class="nav-logo">
+      <i class="fas fa-anchor"></i>
+      <span>Master Yacht</span>
+    </div>
+
+    <div class="nav-links">
+      <a (click)="scrollToSection('features')">Fonctionnalités</a>
+      <a (click)="scrollToSection('stats')">Statistiques</a>
+      <a (click)="scrollToSection('testimonials')">Témoignages</a>
+      
+      @if (!isLoggedIn) {
+        <button class="btn-login" (click)="goToLogin()">
+          <i class="fas fa-sign-in-alt"></i>
+          Connexion
+        </button>
+      } @else {
+        <div class="user-menu-container">
+          <button class="user-menu-btn" (click)="toggleUserMenu()">
+            <img [src]="getUserAvatar()" alt="{{ currentUser?.name }}" class="user-avatar">
+            <span class="user-name">{{ currentUser?.name }}</span>
+            <i class="fas fa-chevron-down"></i>
+          </button>
+          
+          @if (showUserMenu) {
+            <div class="user-dropdown">
+              <button class="dropdown-item" (click)="goToDashboard()">
+                <i class="fas fa-th-large"></i>
+                <span>Dashboard</span>
+              </button>
+              <button class="dropdown-item logout" (click)="logout()">
+                <i class="fas fa-sign-out-alt"></i>
+                <span>Déconnexion</span>
+              </button>
+            </div>
+          }
+        </div>
+      }
+    </div>
+
+    <button class="mobile-menu-toggle">
+      <i class="fas fa-bars"></i>
+    </button>
+  </div>
+</nav>
+
+<!-- Hero Section -->
+<section class="hero-section">
+  <div class="hero-bg-animation">
+    <div class="wave-layer"></div>
+    <div class="wave-layer"></div>
+    <div class="wave-layer"></div>
+  </div>
+
+  <div class="hero-content">
+    <div class="hero-badge">
+      <i class="fas fa-certificate"></i>
+      <span>Plateforme #1 de Location de Yachts</span>
+    </div>
+
+    <h1 class="hero-title">
+      Naviguez vers
+      <span class="gradient-text">l'Excellence</span>
+    </h1>
+
+    <p class="hero-description">
+      Découvrez une collection exclusive de yachts de luxe pour des expériences inoubliables.
+    </p>
+    <p class="hero-description">
+      Réservez en ligne, gérez vos locations, et profitez de recommandations personnalisées par IA.
+    </p>
+
+    <div class="hero-cta">
+      @if (!isLoggedIn) {
+        <button class="btn-primary" (click)="goToRegister()">
+          <span>Commencer Gratuitement</span>
+          <i class="fas fa-arrow-right"></i>
+        </button>
+      } @else {
+        <button class="btn-primary" (click)="goToDashboard()">
+          <span>Accéder au Dashboard</span>
+          <i class="fas fa-arrow-right"></i>
+        </button>
+      }
+    </div>
+
+    <div class="hero-trust">
+      <div class="trust-item">
+        <i class="fas fa-shield-alt"></i>
+        <span>Paiements Sécurisés</span>
+      </div>
+      <div class="trust-item">
+        <i class="fas fa-headset"></i>
+        <span>Support 24/7</span>
+      </div>
+      <div class="trust-item">
+        <i class="fas fa-check-circle"></i>
+        <span>Yachts Certifiés</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="hero-illustration">
+    <div class="yacht-card floating">
+      <div class="yacht-image-placeholder">
+        <i class="fas fa-ship"></i>
+      </div>
+      <div class="yacht-overlay">
+        <div class="pulse-dot"></div>
+        <span>Disponible maintenant</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Stats Section -->
+<section id="stats" class="stats-section">
+  <div class="container">
+    <div class="stats-grid">
+      <div class="stat-card" *ngFor="let stat of stats">
+        <div class="stat-icon">
+          <i class="fas" [class]="stat.icon"></i>
+        </div>
+        <div class="stat-content">
+          <h3 class="stat-number">{{ stat.number }}</h3>
+          <p class="stat-label">{{ stat.label }}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Features Section -->
+<section id="features" class="features-section">
+  <div class="container">
+    <div class="section-header">
+      <span class="section-badge">Fonctionnalités</span>
+      <h2 class="section-title">Tout ce dont vous avez besoin</h2>
+      <p class="section-description">
+        Une plateforme complète pour propriétaires et locataires de yachts
+      </p>
+    </div>
+
+    <div class="features-grid">
+      <div class="feature-card" *ngFor="let feature of features">
+        <div class="feature-icon">
+          <i class="fas" [class]="feature.icon"></i>
+        </div>
+        <h3 class="feature-title">{{ feature.title }}</h3>
+        <p class="feature-description">{{ feature.description }}</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Testimonials Section -->
+<section id="testimonials" class="testimonials-section">
+  <div class="container">
+    <div class="section-header">
+      <span class="section-badge">Témoignages</span>
+      <h2 class="section-title">Ce que disent nos clients</h2>
+      <p class="section-description">
+        Avis authentiques de nos utilisateurs
+      </p>
+    </div>
+
+    @if (testimonials.length > 0) {
+      <div class="testimonials-carousel">
+        <div class="testimonial-card active">
+          <div class="testimonial-header">
+            <img 
+              [src]="getClientAvatar(testimonials[currentTestimonial].client.image)" 
+              alt="{{ testimonials[currentTestimonial].client.name }}" 
+              class="testimonial-avatar">
+            <div class="testimonial-info">
+              <h4>{{ testimonials[currentTestimonial].client.name }}</h4>
+              <p class="yacht-name">
+                <i class="fas fa-ship"></i>
+                {{ testimonials[currentTestimonial].yacht.name }}
+              </p>
+            </div>
+            <div class="testimonial-rating">
+              <i class="fas fa-star" *ngFor="let star of getStarArray(testimonials[currentTestimonial].rating)"></i>
+            </div>
+          </div>
+          <p class="testimonial-comment">
+            <i class="fas fa-quote-left"></i>
+            {{ testimonials[currentTestimonial].comment }}
+            <i class="fas fa-quote-right"></i>
+          </p>
+        </div>
+
+        <div class="carousel-indicators">
+          <span
+            *ngFor="let testimonial of testimonials; let i = index"
+            [class.active]="i === currentTestimonial"
+            (click)="currentTestimonial = i"
+          ></span>
+        </div>
+      </div>
+    } @else {
+      <div class="testimonials-loading">
+        <div class="spinner"></div>
+        <p>Chargement des témoignages...</p>
+      </div>
+    }
+  </div>
+</section>
+
+<!-- CTA Section -->
+<section class="cta-section">
+  <div class="container">
+    <div class="cta-content">
+      <h2 class="cta-title">Prêt à naviguer vers l'aventure ?</h2>
+      <p class="cta-description">
+        Rejoignez des milliers d'utilisateurs qui ont déjà trouvé leur yacht idéal
+      </p>
+      <div class="cta-buttons">
+        @if (!isLoggedIn) {
+          <button class="btn-cta-primary" (click)="goToRegister()">
+            <span>Créer un compte</span>
+            <i class="fas fa-arrow-right"></i>
+          </button>
+          <button class="btn-cta-secondary" (click)="goToLogin()">
+            <span>Se connecter</span>
+          </button>
+        } @else {
+          <button class="btn-cta-primary" (click)="goToDashboard()">
+            <span>Accéder au Dashboard</span>
+            <i class="fas fa-arrow-right"></i>
+          </button>
+        }
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer class="landing-footer">
+  <div class="container">
+    <div class="footer-content">
+      <div class="footer-brand">
+        <div class="footer-logo">
+          <i class="fas fa-anchor"></i>
+          <span>Master Yacht</span>
+        </div>
+        <p>La plateforme de référence pour la location de yachts de luxe</p>
+        <div class="footer-social">
+          <a href="#"><i class="fab fa-facebook"></i></a>
+          <a href="#"><i class="fab fa-twitter"></i></a>
+          <a href="#"><i class="fab fa-instagram"></i></a>
+          <a href="#"><i class="fab fa-linkedin"></i></a>
+        </div>
+      </div>
+
+      <div class="footer-links">
+        <div class="footer-column">
+          <h4>Plateforme</h4>
+          @if (!isLoggedIn) {
+            <a (click)="goToLogin()">Se connecter</a>
+            <a (click)="goToRegister()">S'inscrire</a>
+          } @else {
+            <a (click)="goToDashboard()">Dashboard</a>
+          }
+          <a (click)="scrollToSection('features')">Fonctionnalités</a>
+        </div>
+
+        <div class="footer-column">
+          <h4>Support</h4>
+          <a href="#">Centre d'aide</a>
+          <a href="#">Contactez-nous</a>
+          <a href="#">FAQ</a>
+        </div>
+
+        <div class="footer-column">
+          <h4>Légal</h4>
+          <a href="#">Conditions d'utilisation</a>
+          <a href="#">Politique de confidentialité</a>
+          <a href="#">Mentions légales</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <p>&copy; 2025 Master Yacht. Tous droits réservés.</p>
+    </div>
+  </div>
+</footer>

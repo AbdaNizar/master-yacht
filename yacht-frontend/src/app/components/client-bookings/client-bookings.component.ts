@@ -6,8 +6,10 @@ import {getUrl, showAlert} from '../../constants/functions';
 import {HeaderComponent} from '../header/header.component';
 import {WebSocketService} from '../../services/webSocketService/web-socket.service';
 import {PaymentModalComponent} from '../payment-modal/payment-modal.component';
-import {Router} from '@angular/router';
+import {Router, RouterLink} from '@angular/router';
 import {ReviewService} from '../../services/reviewService/review.service';
+import {ChatService} from '../../services/chat.service';
+import {FormsModule} from '@angular/forms';
 
 @Component({
   selector: 'app-client-bookings',
@@ -17,19 +19,32 @@ import {ReviewService} from '../../services/reviewService/review.service';
     NgClass,
     DatePipe,
     HeaderComponent,
-    PaymentModalComponent
+    PaymentModalComponent,
+    RouterLink,
+    FormsModule
 ],
   styleUrl: './client-bookings.component.css'
 })
 export class ClientBookingsComponent implements OnInit {
   bookings: any[] = [];
+  filteredBookings: any[] = [];
   currentImageIndex: { [key: string]: number } = {};
   selectedBooking: any = null;
   isPaymentModalVisible = false;
   @ViewChild(PaymentModalComponent) paymentModal!: PaymentModalComponent;
 
-  constructor(private bookingService: BookingService, private router: Router, private reviewService: ReviewService, private webSocketService: WebSocketService, private toastr: ToastrService) {
-  }
+  selectedStatus: string = 'all';
+  searchTerm: string = '';
+  sortBy: string = 'date-desc';
+
+  constructor(
+    private bookingService: BookingService,
+    private router: Router,
+    private reviewService: ReviewService,
+    private webSocketService: WebSocketService,
+    private toastr: ToastrService,
+    private chatService: ChatService
+  ) {}
 
   ngOnInit(): void {
     this.loadClientBookings();
@@ -41,8 +56,6 @@ export class ClientBookingsComponent implements OnInit {
   }
 
   loadClientBookings(): void {
-
-
     this.bookingService.getBookingsForClient().subscribe({
       next: (data) => {
         this.bookings = data;
@@ -55,20 +68,65 @@ export class ClientBookingsComponent implements OnInit {
             booking.hasReviewed = response.hasReviewed;
           });
         });
-        console.log('this.bookings',this.bookings)
-               this.bookings.forEach(booking => {
+        this.bookings.forEach(booking => {
           this.currentImageIndex[booking._id] = 0;
         });
-        console.log('this.currentImageIndex',this.currentImageIndex)
+        this.applyFilters();
       },
       error: (err) => {
         console.error('Error fetching client bookings:', err);
         this.toastr.error('Erreur lors du chargement des réservations.');
       }
     });
+  }
 
+  applyFilters(): void {
+    let filtered = [...this.bookings];
 
+    if (this.selectedStatus !== 'all') {
+      filtered = filtered.filter(booking => booking.status === this.selectedStatus);
+    }
 
+    if (this.searchTerm.trim()) {
+      const term = this.searchTerm.toLowerCase();
+      filtered = filtered.filter(booking => 
+        booking.yacht.name.toLowerCase().includes(term)
+      );
+    }
+
+    switch(this.sortBy) {
+      case 'date-desc':
+        filtered.sort((a, b) => new Date(b.startDate).getTime() - new Date(a.startDate).getTime());
+        break;
+      case 'date-asc':
+        filtered.sort((a, b) => new Date(a.startDate).getTime() - new Date(b.startDate).getTime());
+        break;
+      case 'price-desc':
+        filtered.sort((a, b) => b.totalPrice - a.totalPrice);
+        break;
+      case 'price-asc':
+        filtered.sort((a, b) => a.totalPrice - b.totalPrice);
+        break;
+    }
+
+    this.filteredBookings = filtered;
+  }
+
+  onStatusChange(): void {
+    this.applyFilters();
+  }
+
+  onSearchChange(): void {
+    this.applyFilters();
+  }
+
+  onSortChange(): void {
+    this.applyFilters();
+  }
+
+  getStatusCount(status: string): number {
+    if (status === 'all') return this.bookings.length;
+    return this.bookings.filter(b => b.status === status).length;
   }
 
   nextImage(booking: any, event: Event) {
@@ -118,11 +176,25 @@ export class ClientBookingsComponent implements OnInit {
     }
   }
 
-
-
   goToAddReview(bookingId: string) {
-    console.log(bookingId)
     this.router.navigate(['/dashboard/client/add-review', bookingId]);
+  }
+
+  openChat(booking: any) {
+    this.chatService.getOrCreateConversation(booking.yacht.owner, booking._id)
+      .subscribe({
+        next: (response) => {
+          if (response.success) {
+            this.router.navigate(['/dashboard/chat'], {
+              state: { conversationId: response.data._id }
+            });
+          }
+        },
+        error: (err) => {
+          console.error('Error creating conversation:', err);
+          this.toastr.error('Impossible d\'ouvrir la conversation');
+        }
+      });
   }
 
   protected readonly getUrl = getUrl;

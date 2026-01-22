@@ -1,0 +1,245 @@
+<div class="ai-smart-container">
+  <div class="ai-hero-section">
+    <div class="hero-glow"></div>
+    <div class="hero-content">
+      <div class="ai-icon-wrapper">
+        <i class="fas fa-brain"></i>
+      </div>
+      <h1 class="hero-title">Recommandations IA Intelligentes</h1>
+      <p class="hero-subtitle">Découvrez les yachts parfaits pour vous grâce à notre intelligence artificielle</p>
+    </div>
+  </div>
+
+  <div class="main-content">
+    <div class="filters-panel">
+      <div class="panel-header">
+        <i class="fas fa-sliders-h"></i>
+        <h3>Filtres Intelligents</h3>
+      </div>
+      
+      <div class="filter-group">
+        <label>
+          <i class="fas fa-coins"></i>
+          Budget Maximum (DT/jour)
+        </label>
+        <input 
+          type="number" 
+          [(ngModel)]="budget" 
+          placeholder="Ex: 5000"
+          class="filter-input">
+      </div>
+
+      <div class="filter-group">
+        <label>
+          <i class="fas fa-users"></i>
+          Capacité Souhaitée
+        </label>
+        <input 
+          type="number" 
+          [(ngModel)]="capacity" 
+          placeholder="Ex: 10"
+          class="filter-input">
+      </div>
+
+      <div class="filter-actions">
+        <button class="btn-apply" (click)="applyFilters()">
+          <i class="fas fa-search"></i>
+          Appliquer
+        </button>
+        <button class="btn-reset" (click)="resetFilters()">
+          <i class="fas fa-redo"></i>
+          Réinitialiser
+        </button>
+      </div>
+
+      @if (userPreferences) {
+        <div class="preferences-card">
+          <div class="pref-header">
+            <i class="fas fa-chart-line"></i>
+            <span>Vos Préférences</span>
+          </div>
+          <div class="pref-item">
+            <span class="pref-label">Budget moyen:</span>
+            <span class="pref-value">{{ userPreferences.budgetRange?.min }} - {{ userPreferences.budgetRange?.max }} DT</span>
+          </div>
+          <div class="pref-item">
+            <span class="pref-label">Capacité:</span>
+            <span class="pref-value">{{ userPreferences.preferredCapacity?.min }} - {{ userPreferences.preferredCapacity?.max }} pers</span>
+          </div>
+        </div>
+      }
+    </div>
+
+    <div class="recommendations-section">
+      @if (loading) {
+        <div class="loading-state">
+          <div class="loading-spinner">
+            <i class="fas fa-ship"></i>
+          </div>
+          <p>Analyse en cours...</p>
+        </div>
+      }
+
+      @if (!loading && aiMessage) {
+        <div class="ai-message-card">
+          <div class="ai-avatar">
+            <i class="fas fa-robot"></i>
+          </div>
+          <div class="ai-message-content">
+            <p>{{ aiMessage }}</p>
+          </div>
+        </div>
+      }
+
+      @if (!loading && recommendations.length > 0) {
+        <div class="yachts-grid">
+          @for (yacht of recommendations; track yacht._id) {
+            <div class="yacht-card-ai" (click)="viewYacht(yacht._id)">
+              <div class="compatibility-badge" [ngClass]="getScoreClass(yacht.compatibilityScore)">
+                <i class="fas fa-star"></i>
+                <span>{{ yacht.compatibilityScore }}%</span>
+              </div>
+
+              <div class="yacht-image-wrapper">
+                <img 
+                  [src]="getUrl(yacht.images[0])" 
+                  [alt]="yacht.name"
+                  class="yacht-image">
+                <div class="image-overlay">
+                  <div class="overlay-badge">
+                    @if (yacht.averageRating > 0) {
+                      <i class="fas fa-star"></i>
+                      <span>{{ yacht.averageRating.toFixed(1) }}</span>
+                    }
+                  </div>
+                </div>
+              </div>
+
+              <div class="yacht-info">
+                <h3 class="yacht-name">{{ yacht.name }}</h3>
+                
+                <div class="yacht-details">
+                  <div class="detail-item">
+                    <i class="fas fa-coins"></i>
+                    <span>{{ yacht.pricePerDay }} DT/jour</span>
+                  </div>
+                  <div class="detail-item">
+                    <i class="fas fa-users"></i>
+                    <span>{{ yacht.capacity }} pers</span>
+                  </div>
+                </div>
+
+                <div class="scores-breakdown">
+                  <div class="score-item">
+                    <div class="score-bar">
+                      <div class="score-fill" [style.width.%]="yacht.scores.price"></div>
+                    </div>
+                    <span class="score-label">
+                      <i class="fas fa-tag"></i> Prix
+                    </span>
+                  </div>
+                  <div class="score-item">
+                    <div class="score-bar">
+                      <div class="score-fill" [style.width.%]="yacht.scores.capacity"></div>
+                    </div>
+                    <span class="score-label">
+                      <i class="fas fa-users"></i> Capacité
+                    </span>
+                  </div>
+                  <div class="score-item">
+                    <div class="score-bar">
+                      <div class="score-fill" [style.width.%]="yacht.scores.reviews"></div>
+                    </div>
+                    <span class="score-label">
+                      <i class="fas fa-comments"></i> Avis
+                    </span>
+                  </div>
+                </div>
+
+                <button class="btn-view-yacht">
+                  <span>Voir les détails</span>
+                  <i class="fas fa-arrow-right"></i>
+                </button>
+              </div>
+            </div>
+          }
+        </div>
+      }
+
+      @if (!loading && recommendations.length === 0 && !aiMessage) {
+        <div class="empty-state">
+          <i class="fas fa-compass"></i>
+          <h3>Aucune recommandation disponible</h3>
+          <p>Effectuez au moins une réservation pour obtenir des recommandations personnalisées</p>
+        </div>
+      }
+    </div>
+  </div>
+
+  <button class="chat-toggle-btn" (click)="toggleChat()" [class.active]="showChat">
+    <i class="fas" [ngClass]="showChat ? 'fa-times' : 'fa-comments'"></i>
+  </button>
+
+  @if (showChat) {
+    <div class="chat-panel">
+      <div class="chat-header">
+        <div class="chat-avatar">
+          <i class="fas fa-robot"></i>
+        </div>
+        <div class="chat-title">
+          <h4>Assistant IA</h4>
+          <span class="chat-status">En ligne</span>
+        </div>
+        <button class="chat-close" (click)="toggleChat()">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+
+      <div class="chat-messages">
+        @if (chatMessages.length === 0) {
+          <div class="chat-welcome">
+            <i class="fas fa-hand-wave"></i>
+            <p>Bonjour! Je suis votre assistant IA. Comment puis-je vous aider à trouver le yacht parfait?</p>
+          </div>
+        }
+
+        @for (message of chatMessages; track message) {
+          <div class="chat-message" [class.user]="message.role === 'user'" [class.assistant]="message.role === 'assistant'">
+            <div class="message-avatar">
+              <i class="fas" [ngClass]="message.role === 'user' ? 'fa-user' : 'fa-robot'"></i>
+            </div>
+            <div class="message-content">
+              <p>{{ message.content }}</p>
+            </div>
+          </div>
+        }
+
+        @if (chatLoading) {
+          <div class="chat-message assistant">
+            <div class="message-avatar">
+              <i class="fas fa-robot"></i>
+            </div>
+            <div class="message-content typing">
+              <span class="dot"></span>
+              <span class="dot"></span>
+              <span class="dot"></span>
+            </div>
+          </div>
+        }
+      </div>
+
+      <div class="chat-input-wrapper">
+        <input 
+          type="text" 
+          [(ngModel)]="chatInput" 
+          (keyup.enter)="sendChatMessage()"
+          placeholder="Posez votre question..."
+          class="chat-input"
+          [disabled]="chatLoading">
+        <button class="chat-send-btn" (click)="sendChatMessage()" [disabled]="chatLoading || !chatInput.trim()">
+          <i class="fas fa-paper-plane"></i>
+        </button>
+      </div>
+    </div>
+  }
+</div>

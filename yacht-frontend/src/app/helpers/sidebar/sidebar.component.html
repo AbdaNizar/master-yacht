@@ -1,19 +1,55 @@
-<div class="sidebar">
+<!-- Mobile Overlay -->
+<div class="mobile-overlay" [class.active]="isMobileOpen" (click)="closeMobileSidebar()"></div>
+
+<!-- Mobile Menu Button (Hamburger) -->
+<button class="mobile-menu-btn" (click)="toggleMobileSidebar()">
+  <span class="hamburger-line"></span>
+  <span class="hamburger-line"></span>
+  <span class="hamburger-line"></span>
+</button>
+
+<!-- Sidebar -->
+<div class="sidebar" [class.collapsed]="isCollapsed" [class.mobile-open]="isMobileOpen">
+  <!-- Close Button (Mobile only) -->
+  <button class="mobile-close-btn" (click)="closeMobileSidebar()">
+    <i class="fas fa-times"></i>
+  </button>
+
+  <!-- Toggle Button (Desktop) -->
+  <button class="toggle-btn" (click)="toggleSidebar()" title="{{ isCollapsed ? 'Ouvrir' : 'Fermer' }}">
+    <i class="fas" [class.fa-chevron-right]="isCollapsed" [class.fa-chevron-left]="!isCollapsed"></i>
+  </button>
+
+  <!-- Logo & Profile Section -->
   <div class="logo">
     <div class="profile-picture">
       <img [src]="user?.image ? getUrl(user?.image) : 'assets/default-avatar.png'" alt="Photo de profil" />
     </div>
-    <h1>{{user?.name}}</h1>
-  </div>
-  <ul class="menu">
-    @for (item of menuItems; track item) {
-      <li>
-        <a [routerLink]="item.route" routerLinkActive="active">{{ item.name }}</a>
-      </li>
-    }
-  </ul>
-  <div class="logout">
-    <a class="btn-logout" (click)="logout()">Déconnexion</a>
+    <div class="profile-info" *ngIf="!isCollapsed || isMobileOpen">
+      <h1>{{ user?.name }}</h1>
+      <span class="user-role">{{ role }}</span>
+    </div>
   </div>
 
+  <!-- Menu Items -->
+  <ul class="menu">
+    <li *ngFor="let item of menuItems">
+      <a 
+        [routerLink]="item.route" 
+        routerLinkActive="active" 
+        [title]="isCollapsed && !isMobileOpen ? item.name : ''"
+        (click)="onMenuItemClick()">
+        <i [class]="item.icon"></i>
+        <span class="menu-text" *ngIf="!isCollapsed || isMobileOpen">{{ item.name }}</span>
+      </a>
+    </li>
+  </ul>
+
+  <!-- Logout Button -->
+  <div class="logout">
+    <a class="btn-logout" (click)="logout()" [title]="isCollapsed && !isMobileOpen ? 'Déconnexion' : ''">
+      <i class="fas fa-sign-out-alt"></i>
+      <span class="logout-text" *ngIf="!isCollapsed || isMobileOpen">Déconnexion</span>
+    </a>
+  </div>
 </div>

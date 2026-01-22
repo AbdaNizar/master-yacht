@@ -1,0 +1,74 @@
+@if (isOpen) {
+  <div class="modal-overlay" (click)="closeModal()">
+    <div class="modal-container" (click)="stopPropagation($event)">
+      <div class="modal-header">
+        <h2>
+          <i class="fas fa-brain"></i>
+          Analyse IA - {{ yachtName }}
+        </h2>
+        <button class="close-button" (click)="closeModal()">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+
+      <div class="modal-body">
+        @if (analysis) {
+          <div class="analysis-section">
+            <div class="section-header">
+              <i class="fas fa-star"></i>
+              <h3>Points Forts</h3>
+            </div>
+            <ul class="points-list positive">
+              @for (point of analysis.strengths; track point) {
+                <li>{{ point }}</li>
+              }
+            </ul>
+          </div>
+
+          <div class="analysis-section">
+            <div class="section-header">
+              <i class="fas fa-exclamation-triangle"></i>
+              <h3>Points d'Attention</h3>
+            </div>
+            <ul class="points-list warning">
+              @for (point of analysis.weaknesses; track point) {
+                <li>{{ point }}</li>
+              }
+            </ul>
+          </div>
+
+          <div class="analysis-section">
+            <div class="section-header">
+              <i class="fas fa-lightbulb"></i>
+              <h3>Recommandations</h3>
+            </div>
+            <ul class="points-list recommendation">
+              @for (point of analysis.recommendations; track point) {
+                <li>{{ point }}</li>
+              }
+            </ul>
+          </div>
+
+          <div class="analysis-section">
+            <div class="section-header">
+              <i class="fas fa-chart-line"></i>
+              <h3>Score Global</h3>
+            </div>
+            <div class="score-container">
+              <div class="score-circle">
+                <span class="score-value">{{ analysis.score }}</span>
+                <span class="score-label">/10</span>
+              </div>
+              <p class="score-description">{{ analysis.summary }}</p>
+            </div>
+          </div>
+        } @else {
+          <div class="loading-container">
+            <div class="spinner"></div>
+            <p>Analyse en cours...</p>
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+}

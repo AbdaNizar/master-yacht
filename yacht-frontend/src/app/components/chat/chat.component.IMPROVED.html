@@ -1,0 +1,144 @@
+<div class="chat-container">
+  <div class="conversations-panel">
+    <div class="panel-header">
+      <h2>💬 Messages</h2>
+      <div class="search-box">
+        <i class="fas fa-search"></i>
+        <input type="text" 
+               [(ngModel)]="searchTerm" 
+               (ngModelChange)="filterConversations()"
+               placeholder="Rechercher...">
+      </div>
+    </div>
+
+    <div class="conversations-list">
+      <div *ngFor="let conv of filteredConversations" 
+           class="conversation-item"
+           [class.active]="selectedConversation?._id === conv._id"
+           (click)="selectConversation(conv)">
+        <div class="conversation-avatar">
+          <img [src]="getOtherParticipant(conv).image ? getUrl(getOtherParticipant(conv).image) : 'assets/img/default/user.webp'" 
+               [alt]="getOtherParticipant(conv).name">
+          <span class="unread-badge" *ngIf="conv.unreadCount && conv.unreadCount > 0">{{ conv.unreadCount }}</span>
+        </div>
+        <div class="conversation-info">
+          <div class="conversation-header">
+            <h4>{{ getOtherParticipant(conv).name }}</h4>
+            <span class="time" *ngIf="conv.lastMessage">{{ conv.lastMessage.createdAt | date: 'short' }}</span>
+          </div>
+          <p class="last-message" *ngIf="conv.lastMessage">{{ conv.lastMessage.content }}</p>
+          <p class="yacht-name" *ngIf="conv.yacht">⚓ {{ conv.yacht.name }}</p>
+        </div>
+      </div>
+
+      <div *ngIf="filteredConversations.length === 0 && searchTerm" class="empty-state">
+        <i class="fas fa-search fa-3x"></i>
+        <p>Aucune conversation trouvée</p>
+      </div>
+
+      <div *ngIf="conversations.length === 0" class="empty-state">
+        <i class="fas fa-comments fa-3x"></i>
+        <p>Aucune conversation</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="messages-panel">
+    <div *ngIf="!selectedConversation" class="no-conversation-selected">
+      <i class="fas fa-comment-dots fa-5x"></i>
+      <h3>Sélectionnez une conversation</h3>
+      <p>Choisissez une conversation pour commencer à discuter</p>
+    </div>
+
+    <div *ngIf="selectedConversation" class="chat-content">
+      <div class="chat-header">
+        <div class="participant-info">
+          <img [src]="getOtherParticipant(selectedConversation).image ? getUrl(getOtherParticipant(selectedConversation).image) : 'assets/img/default/user.webp'" 
+               [alt]="getOtherParticipant(selectedConversation).name">
+          <div>
+            <h3>{{ getOtherParticipant(selectedConversation).name }}</h3>
+            <p class="role-badge">{{ getOtherParticipant(selectedConversation).role === 'owner' ? 'Propriétaire' : 'Client' }}</p>
+          </div>
+        </div>
+
+        <!-- Indicateur de connexion -->
+        <div class="connection-status" [class]="connectionStatus">
+          <i class="fas fa-circle"></i>
+          <span *ngIf="connectionStatus === 'connected'">Connecté</span>
+          <span *ngIf="connectionStatus === 'disconnected'">Déconnecté</span>
+          <span *ngIf="connectionStatus === 'reconnecting'">Reconnexion...</span>
+        </div>
+
+        <div class="yacht-info" *ngIf="selectedConversation.yacht">
+          <i class="fas fa-ship"></i>
+          <span>{{ selectedConversation.yacht.name }}</span>
+        </div>
+      </div>
+
+      <div class="messages-container" #messagesContainer (scroll)="onScroll()">
+        <!-- Indicateur de chargement en haut -->
+        <div class="load-more-indicator" *ngIf="isLoadingMore">
+          <div class="spinner-small"></div>
+          <span>Chargement...</span>
+        </div>
+
+        <div *ngIf="loading" class="loading">
+          <div class="spinner"></div>
+        </div>
+
+        <div *ngIf="!loading" class="messages-list">
+          <div *ngFor="let message of messages" 
+               class="message-wrapper"
+               [class.my-message]="isMyMessage(message)"
+               [class.their-message]="!isMyMessage(message)">
+            <div class="message-bubble">
+              <p>{{ message.content }}</p>
+              <div class="message-meta">
+                <span class="time">{{ message.createdAt | date: 'short' }}</span>
+                <i *ngIf="isMyMessage(message) && message.isRead" class="fas fa-check-double read-indicator" title="Lu"></i>
+                <i *ngIf="isMyMessage(message) && !message.isRead" class="fas fa-check sent-indicator" title="Envoyé"></i>
+              </div>
+            </div>
+            <!-- Bouton de suppression pour les messages de l'utilisateur -->
+            <button *ngIf="isMyMessage(message)" 
+                    class="delete-message-btn" 
+                    (click)="deleteMessage(message._id)"
+                    title="Supprimer ce message">
+              <i class="fas fa-trash"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="message-input-container">
+        <!-- Indicateur "en train d'écrire" -->
+        <div class="typing-indicator" *ngIf="isOtherUserTyping()">
+          <span>{{ getOtherParticipant(selectedConversation).name }} est en train d'écrire</span>
+          <div class="typing-dots">
+            <span></span>
+            <span></span>
+            <span></span>
+          </div>
+        </div>
+
+        <div class="emoji-picker" *ngIf="showEmojiPicker">
+          <span *ngFor="let emoji of emojis" (click)="addEmoji(emoji)" class="emoji-item">{{ emoji }}</span>
+        </div>
+        
+        <div class="input-wrapper">
+          <button type="button" class="emoji-toggle" (click)="showEmojiPicker = !showEmojiPicker">
+            <i class="fas fa-smile"></i>
+          </button>
+          <input type="text" 
+                 [(ngModel)]="newMessageText" 
+                 (ngModelChange)="onMessageInput()"
+                 (keyup.enter)="sendMessage()"
+                 placeholder="Écrivez votre message...">
+          <button type="button" class="send-button" (click)="sendMessage()" [disabled]="!newMessageText.trim()">
+            <i class="fas fa-paper-plane"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

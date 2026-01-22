@@ -5,12 +5,15 @@ import {FormsModule} from '@angular/forms';
 import {AuthService} from '../../services/authService/auth.service';
 import {showAlert} from '../../constants/functions';
 import {NgOptimizedImage} from '@angular/common';
+import {ButtonLoaderComponent} from '../button-loader/button-loader.component';
+import {ToastService} from '../../services/toast.service';
 
 @Component({
   selector: 'app-login',
   imports: [
     FormsModule,
-    NgOptimizedImage
+    NgOptimizedImage,
+    ButtonLoaderComponent
   ],
   templateUrl: './login.component.html',
   standalone: true,
@@ -21,15 +24,22 @@ export class LoginComponent {
     email: '',
     password: '',
   };
+  
+  showPassword: boolean = false;
+  isLoading: boolean = false;
 
-  constructor(private userService: UserService, private authService: AuthService, private router: Router) {
+  constructor(private userService: UserService, private authService: AuthService, private router: Router, private toastService: ToastService) {
+    this.toastService.clearOnLogout();
   }
 
   onSubmit(): void {
+    this.isLoading = true;
     this.userService.loginUser(this.user.email, this.user.password).subscribe({
       next: (response) => {
         this.authService.setUser(response.user);
         localStorage.setItem('jwt', response.token);
+        localStorage.setItem('token', response.token);
+        this.isLoading = false;
         if (response.user.role !== 'admin') {
           this.router.navigate([`dashboard/${response.user.role}/list`]);
           const user = this.authService.getUser();
@@ -38,30 +48,19 @@ export class LoginComponent {
         }
       },
       error: async (err) => {
-        await this.openModal(err.error.message);
+        this.isLoading = false;
+        await showAlert({
+          title: '<strong>Erreur de connexion</strong>',
+          icon: 'error',
+          html: err.error.message || 'Identifiants incorrects',
+          confirmButtonText: 'OK',
+          showCancelButton: false,
+        });
       },
     });
   }
 
-  async openModal(message: string) {
-    const customAlertData = {
-      title: `<strong>Attention !!</strong>`,
-      icon: 'error',
-      html: message,
-      confirmButtonText: 'OK',
-      showCancelButton: false,
-    };
-
-    try {
-      await showAlert(customAlertData);
-    } catch (error) {
-      console.error(' Erreur lors de l\'affichage du message :', error);
-    }
-  }
-
   goToRegister() {
     return this.router.navigate(['/register']);
-
   }
 }
-

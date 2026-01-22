@@ -26,7 +26,12 @@
       <textarea id="comment" [(ngModel)]="comment" class="form-control" rows="4" placeholder="Partagez votre expérience..."></textarea>
     </div>
 
-    <button class="btn btn-submit" (click)="submitReview()">Envoyer l'avis</button>
+    <app-button-loader 
+      [loading]="isLoading"
+      buttonClass="btn btn-submit"
+      (click)="submitReview()">
+      Envoyer l'avis
+    </app-button-loader>
     <!-- Success Message -->
     @if (successMessage) {
       <div class="success-message">

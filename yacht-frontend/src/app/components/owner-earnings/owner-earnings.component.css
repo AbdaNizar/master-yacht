@@ -1,72 +1,406 @@
 .earnings-container {
-  background: var(--secondary-color);
-  padding: 20px;
-  border-radius: 15px;
-  max-width: 1000px;
-  margin: 20px auto;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 2.5rem;
+  animation: fadeIn 0.6s ease-out;
 }
 
-.total-earnings h2 {
-  color: gold;
-  text-align: center;
-  font-size: 28px;
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
-.table-responsive {
-  margin-top: 20px;
+.page-header {
+  margin-bottom: 3rem;
+  padding: 2.5rem;
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.15), rgba(139, 92, 246, 0.15));
+  border-radius: 24px;
+  border: 1px solid rgba(99, 102, 241, 0.2);
 }
 
-.table {
-  width: 100%;
-  border-collapse: collapse;
-  background: var(--background-color);
-  border-radius: 10px;
-}
-
-.table th, .table td {
-  padding: 12px;
-  text-align: center;
-  border-bottom: 1px solid var(--input-bg);
-}
-
-.table th {
-  background: var(--primary-color);
-  color: white;
-}
-
-.yacht-avatar {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  margin-right: 10px;
-}
-
-/* ✅ Tooltip personnalisé */
-.chart-tooltip {
-  position: absolute;
-  background: rgba(0, 0, 0, 0.8);
-  color: white;
-  padding: 10px;
-  border-radius: 8px;
-  display: none;
-  font-size: 14px;
-  z-index: 1000;
-  transition: opacity 0.3s;
-}
-
-.chart-tooltip .tooltip-content {
+.header-content {
   display: flex;
   align-items: center;
+  gap: 1.5rem;
 }
 
-.chart-tooltip .tooltip-image {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  margin-right: 10px;
+.header-content > i {
+  font-size: 3.5rem;
+  background: linear-gradient(135deg, #6366F1, #A78BFA);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
-.chart-tooltip .tooltip-text {
-  font-weight: bold;
+.header-content h1 {
+  margin: 0;
+  font-size: 2.5rem;
+  font-weight: 900;
+  color: white;
+}
+
+.header-content p {
+  margin: 0.5rem 0 0 0;
+  font-size: 1.125rem;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.total-earnings-card {
+  display: flex;
+  align-items: center;
+  gap: 2.5rem;
+  padding: 3rem;
+  margin-bottom: 3rem;
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.15), rgba(5, 150, 105, 0.15));
+  backdrop-filter: blur(10px);
+  border: 2px solid rgba(16, 185, 129, 0.3);
+  border-radius: 24px;
+  position: relative;
+  overflow: hidden;
+}
+
+.total-earnings-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(5, 150, 105, 0.1));
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.total-earnings-card:hover::before {
+  opacity: 1;
+}
+
+.earnings-icon {
+  width: 100px;
+  height: 100px;
+  border-radius: 20px;
+  background: linear-gradient(135deg, #10B981, #059669);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  box-shadow: 0 8px 32px rgba(16, 185, 129, 0.4);
+  position: relative;
+  z-index: 1;
+}
+
+.earnings-icon i {
+  font-size: 3rem;
+  color: white;
+}
+
+.earnings-content {
+  flex: 1;
+  position: relative;
+  z-index: 1;
+}
+
+.earnings-content h3 {
+  margin: 0 0 0.75rem 0;
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.7);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.earnings-value {
+  margin: 0 0 0.5rem 0;
+  font-size: 3.5rem;
+  font-weight: 900;
+  color: #10B981;
+  line-height: 1;
+}
+
+.earnings-label {
+  font-size: 1rem;
+  color: rgba(255, 255, 255, 0.6);
+  font-weight: 500;
+}
+
+.chart-section {
+  margin-bottom: 3rem;
+  background: linear-gradient(135deg, rgba(30, 41, 59, 0.95), rgba(15, 23, 42, 0.95));
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 24px;
+  padding: 2.5rem;
+}
+
+.chart-header {
+  margin-bottom: 2rem;
+}
+
+.chart-header h2 {
+  margin: 0;
+  font-size: 1.75rem;
+  font-weight: 800;
+  color: white;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.chart-header i {
+  color: #6366F1;
+  font-size: 1.875rem;
+}
+
+.chart-wrapper {
+  height: 400px;
+}
+
+.table-section {
+  background: linear-gradient(135deg, rgba(30, 41, 59, 0.95), rgba(15, 23, 42, 0.95));
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 24px;
+  overflow: hidden;
+}
+
+.table-header {
+  padding: 2.5rem 2.5rem 2rem 2.5rem;
+  border-bottom: 2px solid rgba(255, 255, 255, 0.05);
+}
+
+.table-header h2 {
+  margin: 0;
+  font-size: 1.75rem;
+  font-weight: 800;
+  color: white;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.table-header i {
+  color: #6366F1;
+  font-size: 1.875rem;
+}
+
+.empty-state {
+  padding: 5rem 2rem;
+  text-align: center;
+}
+
+.empty-state i {
+  font-size: 5rem;
+  color: rgba(99, 102, 241, 0.3);
+  margin-bottom: 1.5rem;
+}
+
+.empty-state h3 {
+  margin: 0 0 0.5rem 0;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: white;
+}
+
+.empty-state p {
+  margin: 0;
+  font-size: 1rem;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.table-wrapper {
+  overflow-x: auto;
+  padding: 0 2.5rem 2.5rem 2.5rem;
+}
+
+.earnings-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.earnings-table thead tr {
+  border-bottom: 2px solid rgba(99, 102, 241, 0.2);
+}
+
+.earnings-table th {
+  padding: 1.5rem 1rem;
+  text-align: left;
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.7);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.earnings-table tbody tr {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  transition: all 0.3s ease;
+}
+
+.earnings-table tbody tr:hover {
+  background: rgba(99, 102, 241, 0.05);
+}
+
+.earnings-table td {
+  padding: 1.5rem 1rem;
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 1rem;
+}
+
+.yacht-cell {
+  width: 100px;
+}
+
+.yacht-image-container {
+  width: 80px;
+  height: 80px;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 2px solid rgba(99, 102, 241, 0.3);
+}
+
+.yacht-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.yacht-image-container:hover .yacht-image {
+  transform: scale(1.1);
+}
+
+.yacht-name {
+  font-weight: 700;
+  color: white;
+  font-size: 1.125rem;
+}
+
+.reservations {
+  text-align: center;
+}
+
+.reservations-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.625rem 1.25rem;
+  background: rgba(99, 102, 241, 0.15);
+  border: 1px solid rgba(99, 102, 241, 0.3);
+  border-radius: 50px;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #6366F1;
+}
+
+.reservations-badge i {
+  font-size: 1rem;
+}
+
+.revenue {
+  text-align: right;
+}
+
+.revenue-value {
+  font-size: 1.375rem;
+  font-weight: 900;
+  color: #10B981;
+}
+
+@media (max-width: 768px) {
+  .earnings-container {
+    padding: 1.5rem;
+  }
+
+  .page-header {
+    padding: 2rem;
+  }
+
+  .header-content {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .header-content h1 {
+    font-size: 2rem;
+  }
+
+  .total-earnings-card {
+    flex-direction: column;
+    text-align: center;
+    padding: 2.5rem;
+  }
+
+  .earnings-icon {
+    width: 90px;
+    height: 90px;
+  }
+
+  .earnings-icon i {
+    font-size: 2.5rem;
+  }
+
+  .earnings-value {
+    font-size: 3rem;
+  }
+
+  .chart-section,
+  .table-section {
+    padding: 2rem;
+  }
+
+  .table-wrapper {
+    padding: 0 0 2rem 0;
+  }
+
+  .earnings-table {
+    font-size: 0.875rem;
+  }
+
+  .yacht-image-container {
+    width: 60px;
+    height: 60px;
+  }
+}
+
+@media (max-width: 480px) {
+  .earnings-container {
+    padding: 1.25rem;
+  }
+
+  .page-header {
+    padding: 1.5rem;
+  }
+
+  .header-content h1 {
+    font-size: 1.75rem;
+  }
+
+  .total-earnings-card {
+    padding: 2rem;
+  }
+
+  .earnings-icon {
+    width: 80px;
+    height: 80px;
+  }
+
+  .earnings-value {
+    font-size: 2.5rem;
+  }
+
+  .chart-wrapper {
+    height: 300px;
+  }
+
+  .table-header h2,
+  .chart-header h2 {
+    font-size: 1.5rem;
+  }
+
+  .earnings-table th,
+  .earnings-table td {
+    padding: 1rem 0.5rem;
+  }
 }

@@ -1,86 +1,191 @@
-<div class="container">
-  <div class="image-section">
+<div class="auth-container">
+  <!-- Left Side - Brand & Image -->
+  <div class="brand-section">
+    <div class="brand-overlay">
+      <div class="brand-content">
+        <div class="logo-container">
+          <i class="fas fa-anchor"></i>
+          <h1>Master Yacht</h1>
+        </div>
+        <p class="tagline">Rejoignez la communauté maritime d'élite</p>
+        <div class="features">
+          <div class="feature-item">
+            <i class="fas fa-bolt"></i>
+            <span>Inscription rapide</span>
+          </div>
+          <div class="feature-item">
+            <i class="fas fa-user-shield"></i>
+            <span>Compte sécurisé</span>
+          </div>
+          <div class="feature-item">
+            <i class="fas fa-rocket"></i>
+            <span>Accès immédiat</span>
+          </div>
+        </div>
+      </div>
+    </div>
     <img src="assets/img/default/yacht_modern2.webp" alt="Yacht moderne" class="yacht-image">
   </div>
+
+  <!-- Right Side - Form -->
   <div class="form-section">
-    <h2>Créer un compte</h2>
-    <form #userForm="ngForm" (ngSubmit)="onSubmit(userForm)">
-      <div class="form-group">
-        <label for="name">Nom complet</label>
-        <input
-          class="input-field"
-          type="text"
-          id="name"
-          name="name"
-          [(ngModel)]="user.name"
-          placeholder="Entrez votre nom complet"
-          required
-        >
-      </div>
-      <div class="form-group">
-        <label for="email">Adresse e-mail</label>
-        <input
-          class="input-field"
-          type="email"
-          id="email"
-          name="email"
-          [(ngModel)]="user.email"
-          placeholder="Entrez votre adresse e-mail"
-          required
-        >
-      </div>
-      <div class="form-group">
-        <label for="password">Mot de passe</label>
-        <input
-          class="input-field"
-          type="password"
-          id="password"
-          name="password"
-          [(ngModel)]="user.password"
-          placeholder="Entrez votre mot de passe"
-          required
-        >
-      </div>
-      <div class="form-group">
-        <label for="role">Rôle</label>
-        <select
-          id="role"
-          name="role"
-          class="input-field"
-          [(ngModel)]="user.role"
-          required
-        >
-          <option value="client">Client</option>
-          <option value="owner">Propriétaire</option>
-        </select>
+    <div class="form-container">
+      <div class="form-header">
+        <h2>Créer un compte</h2>
+        <p>Commencez votre aventure maritime aujourd'hui</p>
       </div>
 
-      <div class="form-group">
-        <label for="image">Image</label>
-        <input
-          type="file"
-          id="image"
-          name="image"
-          class="input-field"
-          (change)="onFileSelected($event)"
-          required
-        />
-      </div>
-      <div class="form-group">
-        <label class="checkbox-label">
+      <form #userForm="ngForm" (ngSubmit)="onSubmit(userForm)">
+        <!-- Name -->
+        <div class="form-group">
+          <label for="name">
+            <i class="fas fa-user"></i>
+            Nom complet
+          </label>
           <input
-            type="checkbox"
-            name="terms"
-            [(ngModel)]="acceptedTerms"
+            class="input-field"
+            type="text"
+            id="name"
+            name="name"
+            [(ngModel)]="user.name"
+            placeholder="Jean Dupont"
             required
           >
-          J'accepte les termes et conditions
-        </label>
+        </div>
+
+        <!-- Email -->
+        <div class="form-group">
+          <label for="email">
+            <i class="fas fa-envelope"></i>
+            Adresse e-mail
+          </label>
+          <input
+            class="input-field"
+            type="email"
+            id="email"
+            name="email"
+            [(ngModel)]="user.email"
+            placeholder="exemple@email.com"
+            required
+            email
+          >
+        </div>
+
+        <!-- Password -->
+        <div class="form-group">
+          <label for="password">
+            <i class="fas fa-lock"></i>
+            Mot de passe
+          </label>
+          <div class="password-input">
+            <input
+              class="input-field"
+              [type]="showPassword ? 'text' : 'password'"
+              id="password"
+              name="password"
+              [(ngModel)]="user.password"
+              placeholder="••••••••"
+              required
+              minlength="6"
+            >
+            <button type="button" class="toggle-password" (click)="showPassword = !showPassword">
+              <i [class]="showPassword ? 'fas fa-eye-slash' : 'fas fa-eye'"></i>
+            </button>
+          </div>
+          <small class="hint">Minimum 6 caractères</small>
+        </div>
+
+        <!-- Role -->
+        <div class="form-group">
+          <label for="role">
+            <i class="fas fa-user-tag"></i>
+            Je suis
+          </label>
+          <div class="role-selector">
+            <label class="role-option" [class.selected]="user.role === 'client'">
+              <input
+                type="radio"
+                name="role"
+                value="client"
+                [(ngModel)]="user.role"
+                required
+              >
+              <div class="role-card">
+                <i class="fas fa-anchor"></i>
+                <span>Client</span>
+                <small>Je veux louer un yacht</small>
+              </div>
+            </label>
+            <label class="role-option" [class.selected]="user.role === 'owner'">
+              <input
+                type="radio"
+                name="role"
+                value="owner"
+                [(ngModel)]="user.role"
+                required
+              >
+              <div class="role-card">
+                <i class="fas fa-ship"></i>
+                <span>Propriétaire</span>
+                <small>Je veux louer mon yacht</small>
+              </div>
+            </label>
+          </div>
+        </div>
+
+        <!-- Image Upload -->
+        <div class="form-group">
+          <label for="image">
+            <i class="fas fa-camera"></i>
+            Photo de profil
+          </label>
+          <div class="file-upload">
+            <input
+              type="file"
+              id="image"
+              name="image"
+              (change)="onFileSelected($event)"
+              accept="image/*"
+              required
+            >
+            <label for="image" class="file-label">
+              <i class="fas fa-cloud-upload-alt"></i>
+              <span>{{ selectedFileName || 'Choisir une image' }}</span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Terms -->
+        <div class="form-group">
+          <label class="checkbox-label">
+            <input
+              type="checkbox"
+              name="terms"
+              [(ngModel)]="acceptedTerms"
+              required
+            >
+            <span>J'accepte les <a href="#">termes et conditions</a></span>
+          </label>
+        </div>
+
+        <!-- Submit Button -->
+        <app-button-loader 
+          type="submit" 
+          [loading]="isLoading"
+          [disabled]="!userForm.valid"
+          buttonClass="btn-primary"
+          icon="fas fa-arrow-right">
+          Créer mon compte
+        </app-button-loader>
+      </form>
+
+
+
+
+
+      <div class="register-link">
+        <p>Vous avez déjà un compte ? <a (click)="goToRegister()">Se connecter</a></p>
       </div>
-      <button type="submit" class="btn" [disabled]="!userForm.valid">Créer un compte</button>
-    </form>
-    <div class="register-link">
-      <p>Vous avez déjà un compte ? <a (click)="goToRegister()">Se connecter</a></p>
     </div>
   </div>
 </div>

@@ -9,14 +9,16 @@ import frLocale from '@fullcalendar/core/locales/fr';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import { HeaderComponent } from '../header/header.component';
 import { WebSocketService } from '../../services/webSocketService/web-socket.service';
+import { ChatService } from '../../services/chat.service';
+import { Router } from '@angular/router';
 import tippy from 'tippy.js';
 import 'tippy.js/dist/tippy.css';
-import { getUrl, showAlert } from '../../constants/functions';
-import Swal from 'sweetalert2';
+import { getUrl } from '../../constants/functions';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-agenda',
-  imports: [FullCalendarModule, HeaderComponent],
+  imports: [FullCalendarModule, HeaderComponent, CommonModule],
   templateUrl: './agenda.component.html',
   standalone: true,
   styleUrl: './agenda.component.css',
@@ -28,7 +30,17 @@ export class AgendaComponent implements OnInit {
     events: [],
   };
 
-  constructor(private bookingService: BookingService, private webSocketService: WebSocketService, private toastr: ToastrService) {}
+  showBookingModal = false;
+  selectedBooking: any = null;
+  currentImageIndex = 0;
+
+  constructor(
+    private bookingService: BookingService,
+    private webSocketService: WebSocketService,
+    private toastr: ToastrService,
+    private chatService: ChatService,
+    private router: Router
+  ) {}
 
   ngOnInit(): void {
     this.loadBookings();
@@ -67,11 +79,14 @@ export class AgendaComponent implements OnInit {
         start: booking.startDate,
         end: booking.endDate,
         extendedProps: {
-          yachtImages: booking.yacht.images || [],  // Array of images
+          yachtImages: booking.yacht.images || [],
           clientImage: booking.client.image,
+          clientId: booking.client._id,
           status: booking.status,
           totalPrice: booking.totalPrice,
           clientName: booking.client.name,
+          clientEmail: booking.client.email,
+          clientPhone: booking.client.phone,
           yachtName: booking.yacht.name,
         },
         classNames: [`booking-${booking.status}`],
@@ -88,7 +103,6 @@ export class AgendaComponent implements OnInit {
 
         let currentIndex = 0;
 
-
         const updateImage = () => {
           const imgElement = document.getElementById(`yacht-img-${info.event.id}`) as HTMLImageElement;
           if (imgElement) {
@@ -96,14 +110,12 @@ export class AgendaComponent implements OnInit {
           }
         };
 
-        // Start image rotation every 3s
         const imageInterval = setInterval(() => {
           currentIndex = (currentIndex + 1) % yachtImages.length;
           updateImage();
         }, 3000);
 
-        // Define colors for each status
-        let statusColor = "#FFA500"; // Default: Pending
+        let statusColor = "#FFA500";
         if (status === "accepted") statusColor = "#28A745";
         else if (status === "canceled") statusColor = "#DC3545";
         else if (status === "payed") statusColor = "#007BFF";
@@ -124,12 +136,7 @@ export class AgendaComponent implements OnInit {
     <div style="margin-bottom: 8px;">
       <strong style="color: #ffffff;">Statut:</strong>
       <span style="color: ${statusColor};">
-        ${status === 'pending' ? 'En attente' :
-            status === 'accepted' ? 'Accepté' :
-              status === 'payed' ? 'Payé' :
-                status === 'ongoing' ? 'En cours' :
-                  status === 'done' ? 'Terminé' :
-                    'Annulé'}
+        ${this.getStatusText(status)}
       </span>
     </div>
     <div>
@@ -141,7 +148,7 @@ export class AgendaComponent implements OnInit {
           allowHTML: true,
           theme: 'light',
           onHidden() {
-            clearInterval(imageInterval); // Stop image rotation on close
+            clearInterval(imageInterval);
           }
         });
       },
@@ -156,76 +163,111 @@ export class AgendaComponent implements OnInit {
       return;
     }
 
-    // Define booking status display
-    const statusDisplay :any = {
-      pending: { text: 'En attente', color: '#FFC107' },
-      accepted: { text: 'Accepté', color: '#28A745' },
-      payed: { text: 'Payé', color: '#007BFF' },
-      ongoing: { text: 'En cours', color: '#17A2B8' },
-      done: { text: 'Terminé', color: '#6C757D' },
-      canceled: { text: 'Annulé', color: '#DC3545' },
+    this.selectedBooking = {
+      bookingId: info.event.id,
+      ...booking
     };
+    this.currentImageIndex = 0;
+    this.showBookingModal = true;
+  }
 
-    // Modernized reservation display
-    const statusMessage = `
-    <div style="
-        font-family: 'Arial', sans-serif;
-        background: linear-gradient(135deg, #2C3E50, #4CA1AF);
-        color: #ffffff;
-        padding: 15px;
-        border-radius: 12px;
-        text-align: left;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-        max-width: 350px;
-    ">
-      <h3 style="text-align: center; margin-bottom: 10px;"> Détails de la réservation</h3>
+  closeModal(): void {
+    this.showBookingModal = false;
+    this.selectedBooking = null;
+    this.currentImageIndex = 0;
+  }
 
-      <div style="margin-bottom: 10px;">
-        <strong>  Yacht :</strong> ${booking.yachtName}
-      </div>
-      <div style="margin-bottom: 10px;">
-        <strong>  Client :</strong> ${booking.clientName}
-      </div>
-      <div style="margin-bottom: 10px; font-weight: bold;">
-        <strong>  Statut :</strong>
-        <span style="color: ${statusDisplay[booking.status].color};">
-          ${statusDisplay[booking.status].text}
-        </span>
-      </div>
-      <div style="margin-bottom: 10px;">
-        <strong> Prix total:</strong> ${booking.totalPrice} DT
-      </div>
-    </div>
-  `;
+  nextImage(): void {
+    if (this.selectedBooking && this.selectedBooking.yachtImages) {
+      this.currentImageIndex = (this.currentImageIndex + 1) % this.selectedBooking.yachtImages.length;
+    }
+  }
 
-    // Define buttons based on status
-    const isPending = booking.status === 'pending';
-    const showCancel = booking.status !== 'done' && booking.status !== 'ongoing' && booking.status !== 'payed';
+  previousImage(): void {
+    if (this.selectedBooking && this.selectedBooking.yachtImages) {
+      this.currentImageIndex = this.currentImageIndex === 0 
+        ? this.selectedBooking.yachtImages.length - 1 
+        : this.currentImageIndex - 1;
+    }
+  }
 
-    const customAlertData = {
-      title: ' Gérer la réservation',
-      html: statusMessage,
-      icon: 'info',
-      showCancelButton: showCancel,
-      confirmButtonText: isPending ? '✅ Accepter' : 'OK',
-      cancelButtonText: isPending ? '❌ Refuser' : 'Annuler',
-      confirmButtonColor: '#28a745',
-      cancelButtonColor: '#dc3545',
-      allowOutsideClick: true,
-    };
-
-    showAlert(customAlertData).then((result) => {
-      if (result.isConfirmed && isPending) {
-        this.bookingService.updateBookingStatus(info.event.id, 'accepted').subscribe(() => {
-          this.toastr.success('✅ Réservation acceptée avec succès !');
-          this.loadBookings();
-        });
-      } else if (result.dismiss === Swal.DismissReason.cancel) {
-        this.bookingService.updateBookingStatus(info.event.id, 'canceled').subscribe(() => {
-          this.toastr.success('❌ Réservation annulée avec succès !');
-          this.loadBookings();
-        });
+  acceptBooking(): void {
+    if (!this.selectedBooking) return;
+    
+    this.bookingService.updateBookingStatus(this.selectedBooking.bookingId, 'accepted').subscribe({
+      next: () => {
+        this.toastr.success('✅ Réservation acceptée avec succès !');
+        this.closeModal();
+        this.loadBookings();
+      },
+      error: (err) => {
+        this.toastr.error('Erreur lors de l\'acceptation de la réservation');
+        console.error(err);
       }
     });
   }
+
+  rejectBooking(): void {
+    if (!this.selectedBooking) return;
+    
+    this.bookingService.updateBookingStatus(this.selectedBooking.bookingId, 'canceled').subscribe({
+      next: () => {
+        this.toastr.success('❌ Réservation refusée avec succès !');
+        this.closeModal();
+        this.loadBookings();
+      },
+      error: (err) => {
+        this.toastr.error('Erreur lors du refus de la réservation');
+        console.error(err);
+      }
+    });
+  }
+
+  cancelBooking(): void {
+    if (!this.selectedBooking) return;
+    
+    this.bookingService.updateBookingStatus(this.selectedBooking.bookingId, 'canceled').subscribe({
+      next: () => {
+        this.toastr.success('🚫 Réservation annulée avec succès !');
+        this.closeModal();
+        this.loadBookings();
+      },
+      error: (err) => {
+        this.toastr.error('Erreur lors de l\'annulation de la réservation');
+        console.error(err);
+      }
+    });
+  }
+
+  openChat(clientId: string, bookingId: string): void {
+    this.chatService.getOrCreateConversation(clientId, bookingId)
+      .subscribe({
+        next: (response) => {
+          if (response.success) {
+            this.closeModal();
+            this.router.navigate(['/dashboard/chat'], {
+              state: { conversationId: response.data._id }
+            });
+          }
+        },
+        error: (err) => {
+          console.error('Error creating conversation:', err);
+          this.toastr.error('Impossible d\'ouvrir la conversation');
+        }
+      });
+  }
+
+  getStatusText(status: string): string {
+    const statusMap: any = {
+      pending: 'En attente',
+      accepted: 'Accepté',
+      payed: 'Payé',
+      ongoing: 'En cours',
+      done: 'Terminé',
+      canceled: 'Annulé'
+    };
+    return statusMap[status] || status;
+  }
+
+  protected readonly getUrl = getUrl;
 }

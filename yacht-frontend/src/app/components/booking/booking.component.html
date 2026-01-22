@@ -1,102 +1,228 @@
-<header></header>
-<div class="booking-container">
-  <h1>Réserver un Yacht</h1>
+<div class="booking-modern-wrapper">
+  <div class="booking-hero">
+    <div class="hero-content">
+      <h1 class="hero-title">
+        <i class="fas fa-anchor"></i>
+        Réservez votre Yacht
+      </h1>
+      <p class="hero-subtitle">Une expérience inoubliable vous attend</p>
+    </div>
+  </div>
 
-  <div class="booking-details">
-    @if (yacht.averageRating) {
-      <div class="average-rating">
-        @for (star of [1,2,3,4,5]; track star) {
-          <span class="star"
-          [class.filled]="star <= yacht.averageRating">★</span>
+  @if (yacht) {
+    <div class="booking-main-container">
+      <div class="yacht-showcase">
+        @if (yacht.averageRating) {
+          <div class="rating-badge">
+            <i class="fas fa-star"></i>
+            <span class="rating-score">{{ yacht.averageRating.toFixed(1) }}</span>
+            <span class="rating-text">/ 5</span>
+          </div>
         }
-        <span class="rating-value">{{ yacht.averageRating.toFixed(1) }}/5</span>
-      </div>
-    }
 
-    <!-- 📸 Yacht Image Carousel -->
-    <div class="image-carousel">
-      <img [src]="getUrl(yacht.images[currentImageIndex]) || 'assets/img/default-yacht.jpg'"
-        alt="{{ yacht.name }}"
-        class="yacht-image"
-        (mouseenter)="pauseAutoSlide()"
-        (mouseleave)="resumeAutoSlide()"/>
-        <button class="next-btn" (click)="nextImage()">&#10095;</button>
+        <div class="yacht-carousel">
+          <img
+            [src]="getUrl(yacht.images[currentImageIndex]) || 'assets/img/default-yacht.jpg'"
+            [alt]="yacht.name"
+            class="carousel-image"
+            (mouseenter)="pauseAutoSlide()"
+            (mouseleave)="resumeAutoSlide()"/>
+
+          <button class="carousel-nav" (click)="nextImage()">
+            <i class="fas fa-chevron-right"></i>
+          </button>
+
+          <div class="carousel-indicators">
+            @for (img of yacht.images; track img; let i = $index) {
+              <span class="indicator" [class.active]="i === currentImageIndex"></span>
+            }
+          </div>
+        </div>
+
+        <div class="yacht-details-card">
+          <h2 class="yacht-title">{{ yacht.name }}</h2>
+          <p class="yacht-description">{{ yacht.description }}</p>
+
+          <div class="yacht-price-tag">
+            <div class="price-label">Prix par jour</div>
+            <div class="price-amount">
+              <span class="currency">DT</span>
+              <span class="amount">{{ yacht.pricePerDay }}</span>
+            </div>
+          </div>
+
+          <div class="yacht-features">
+            <div class="feature-item">
+              <i class="fas fa-users"></i>
+              <span>Capacité {{ yacht.capacity }} personnes</span>
+            </div>
+            <div class="feature-item">
+              <i class="fas fa-map-marker-alt"></i>
+              <span>Disponible à la réservation</span>
+            </div>
+          </div>
+        </div>
       </div>
 
-      <div class="yacht-info">
-        <h2>{{ yacht.name }}</h2>
-        <p>{{ yacht.description }}</p>
-        <p>Prix par jour : <strong>{{ yacht.pricePerDay  }}Dt</strong></p>
+      <div class="booking-form-section">
+        <div class="form-card">
+          <div class="form-header">
+            <i class="fas fa-calendar-check"></i>
+            <h3>Sélectionnez vos dates</h3>
+          </div>
+
+          <form (ngSubmit)="bookYacht()" class="modern-form">
+            <div class="date-inputs-grid">
+              <div class="input-group">
+                <label for="startDate">
+                  <i class="fas fa-calendar-plus"></i>
+                  Date de début
+                </label>
+                <input
+                  id="startDate"
+                  type="date"
+                  [(ngModel)]="startDate"
+                  name="startDate"
+                  [min]="minDate"
+                  (change)="validateDates()"
+                  class="date-input"
+                  required />
+              </div>
+
+              <div class="input-group">
+                <label for="endDate">
+                  <i class="fas fa-calendar-minus"></i>
+                  Date de fin
+                </label>
+                <input
+                  id="endDate"
+                  type="date"
+                  [(ngModel)]="endDate"
+                  name="endDate"
+                  [min]="startDate"
+                  (change)="validateDates()"
+                  class="date-input"
+                  required />
+              </div>
+            </div>
+
+            @if (errorMessage) {
+              <div class="alert alert-error">
+                <i class="fas fa-exclamation-circle"></i>
+                <span>{{ errorMessage }}</span>
+              </div>
+            }
+
+            @if (isAvailable && totalPrice !== null) {
+              <div class="alert alert-success">
+                <i class="fas fa-check-circle"></i>
+                <span>Dates disponibles !</span>
+              </div>
+            }
+
+            @if (totalPrice !== null) {
+              <div class="price-summary">
+                <div class="summary-header">
+                  <i class="fas fa-receipt"></i>
+                  <span>Récapitulatif</span>
+                </div>
+                <div class="summary-content">
+                  <div class="summary-row">
+                    <span>Prix par jour</span>
+                    <span>{{ yacht.pricePerDay }} DT</span>
+                  </div>
+                  <div class="summary-row">
+                    <span>Nombre de jours</span>
+                    <span>{{ getDaysCount() }}</span>
+                  </div>
+                  <div class="summary-divider"></div>
+                  <div class="summary-row total">
+                    <span>Total</span>
+                    <span class="total-amount">{{ totalPrice }} DT</span>
+                  </div>
+                </div>
+              </div>
+            }
+
+            <app-button-loader
+              type="submit"
+              [loading]="isLoading"
+              [disabled]="!isAvailable"
+              buttonClass="btn-book-now">
+              <i class="fas fa-anchor"></i>
+              Confirmer la réservation
+            </app-button-loader>
+          </form>
+        </div>
       </div>
     </div>
 
-    <!-- Booking Form -->
-    <div class="booking-form">
-      <form (ngSubmit)="bookYacht()">
-        <div class="form-group">
-          <label for="startDate">Date de début</label>
-          <input id="startDate" type="date" [(ngModel)]="startDate" name="startDate" [min]="minDate" (change)="validateDates()" required />
-        </div>
-
-        <div class="form-group">
-          <label for="endDate">Date de fin</label>
-          <input id="endDate" type="date" [(ngModel)]="endDate" name="endDate" [min]="startDate" (change)="validateDates()" required />
-        </div>
-
-        @if (errorMessage) {
-          <p class="error-message">{{ errorMessage }}</p>
+    <div class="reviews-modern-section">
+      <div class="reviews-header">
+        <h2>
+          <i class="fas fa-comments"></i>
+          Avis des clients
+        </h2>
+        @if (yacht.reviews.length > 0) {
+          <span class="reviews-count">{{ yacht.reviews.length }} avis</span>
         }
-        @if (totalPrice !== null) {
-          <p class="total-price">Prix total : {{ totalPrice }} DT</p>
-        }
-        <button type="submit" class="btn" [disabled]="!isAvailable">Réserver</button>
-      </form>
-    </div>
-
-    <div class="reviews-container">
-      <h2>🌟 Avis des clients</h2>
+      </div>
 
       @if (yacht.reviews.length === 0) {
-        <div class="no-reviews">
-          Aucun avis pour ce yacht pour le moment.
+        <div class="no-reviews-state">
+          <i class="fas fa-comment-slash"></i>
+          <h3>Aucun avis pour le moment</h3>
+          <p>Soyez le premier à laisser un avis sur ce yacht</p>
         </div>
       }
 
-      <div class="review-list">
+      <div class="reviews-grid">
         @for (review of yacht.reviews; track review) {
-          <div class="review-card">
-            <div class="review-header">
-              <img [src]="getUrl(review.client.image) || 'assets/default-avatar.png'" class="client-avatar" />
-              <div>
-                <h5>{{ review.client.name }}</h5>
-                <p class="date">{{ review.createdAt | date:'yyyy/MM/dd hh:mm a' }}</p>
+          <div class="review-modern-card">
+            <div class="review-card-header">
+              <div class="reviewer-info">
+                <img
+                  [src]="getUrl(review.client.image) || 'assets/default-avatar.png'"
+                  [alt]="review.client.name"
+                  class="reviewer-avatar" />
+                <div class="reviewer-details">
+                  <h5 class="reviewer-name">{{ review.client.name }}</h5>
+                  <p class="review-date">
+                    <i class="fas fa-clock"></i>
+                    {{ review.createdAt | date:'dd MMMM yyyy' }}
+                  </p>
+                </div>
+              </div>
+              <div class="review-rating-stars">
+                @for (star of [1,2,3,4,5]; track star) {
+                  <i class="fas fa-star" [class.filled]="star <= review.rating"></i>
+                }
               </div>
             </div>
-            <!-- Rating Stars -->
-            <div class="rating">
-              @for (star of [1,2,3,4,5]; track star) {
-                <span class="star" [class.filled]="star <= review.rating">★</span>
+
+            <div class="review-content">
+              @if (!review.expanded) {
+                <p class="review-comment">
+                  {{ review.comment.length > 150 ? (review.comment | slice:0:150) + '...' : review.comment }}
+                </p>
+                @if (review.comment.length > 150) {
+                  <button class="read-more-btn" (click)="toggleExpand(review)">
+                    Lire plus
+                    <i class="fas fa-chevron-down"></i>
+                  </button>
+                }
+              }
+              @if (review.expanded) {
+                <p class="review-comment expanded">{{ review.comment }}</p>
+                <button class="read-more-btn" (click)="toggleExpand(review)">
+                  Lire moins
+                  <i class="fas fa-chevron-up"></i>
+                </button>
               }
             </div>
-            <!-- ✅ Comment Section -->
-            @if (!review.expanded) {
-              <p class="review-text">
-                <span>{{ review.comment.length > 100 ? (review.comment | slice:0:100) + '...' : review.comment }}</span>
-                @if (review.comment.length > 100) {
-                  <span class="read-more" (click)="toggleExpand(review)">Lire la suite</span>
-                }
-              </p>
-            }
-            @if (review.expanded) {
-              <p class="full-review-text">
-                {{ review.comment }}
-                @if (review.comment.length > 100) {
-                  <span class="read-more" (click)="toggleExpand(review)">Lire moins</span>
-                }
-              </p>
-            }
           </div>
         }
       </div>
     </div>
-  </div>
+  }
+</div>

@@ -1,75 +1,207 @@
-<app-header></app-header>
-<div class="booking-container">
-  <h2>Mes Réservations</h2>
+<div class="bookings-modern-container">
+  <div class="header-section">
+    <div class="header-content">
+      <i class="fas fa-calendar-check header-icon"></i>
+      <h1>Mes Réservations</h1>
+      <p class="subtitle">Gérez vos réservations de yachts</p>
+    </div>
+  </div>
 
-  @if (bookings.length === 0) {
-    <div class="no-bookings">
-      Vous n'avez aucune réservation en cours.
+  <div class="filters-section">
+    <div class="filters-row">
+      <div class="filter-group">
+        <label for="search">
+          <i class="fas fa-search"></i>
+          Rechercher
+        </label>
+        <input 
+          type="text" 
+          id="search"
+          [(ngModel)]="searchTerm" 
+          (input)="onSearchChange()"
+          placeholder="Nom du yacht...">
+      </div>
+
+      <div class="filter-group">
+        <label for="status">
+          <i class="fas fa-filter"></i>
+          Statut
+        </label>
+        <select id="status" [(ngModel)]="selectedStatus" (change)="onStatusChange()">
+          <option value="all">Tous ({{ getStatusCount('all') }})</option>
+          <option value="pending">En attente ({{ getStatusCount('pending') }})</option>
+          <option value="accepted">Accepté ({{ getStatusCount('accepted') }})</option>
+          <option value="payed">Payé ({{ getStatusCount('payed') }})</option>
+          <option value="ongoing">En cours ({{ getStatusCount('ongoing') }})</option>
+          <option value="done">Terminé ({{ getStatusCount('done') }})</option>
+          <option value="canceled">Annulé ({{ getStatusCount('canceled') }})</option>
+        </select>
+      </div>
+
+      <div class="filter-group">
+        <label for="sort">
+          <i class="fas fa-sort"></i>
+          Trier par
+        </label>
+        <select id="sort" [(ngModel)]="sortBy" (change)="onSortChange()">
+          <option value="date-desc">Date (Plus récent)</option>
+          <option value="date-asc">Date (Plus ancien)</option>
+          <option value="price-desc">Prix (Plus cher)</option>
+          <option value="price-asc">Prix (Moins cher)</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="results-info">
+      <i class="fas fa-info-circle"></i>
+      <span>{{ filteredBookings.length }} réservation(s) trouvée(s)</span>
+    </div>
+  </div>
+
+  @if (filteredBookings.length === 0 && bookings.length > 0) {
+    <div class="empty-state">
+      <i class="fas fa-filter"></i>
+      <h3>Aucun résultat</h3>
+      <p>Aucune réservation ne correspond à vos critères de recherche</p>
+      <button class="btn-reset" (click)="selectedStatus='all'; searchTerm=''; applyFilters()">
+        <i class="fas fa-redo"></i>
+        Réinitialiser les filtres
+      </button>
     </div>
   }
 
-  <!-- Booking List -->
-  <div class="booking-list">
-    @for (booking of bookings; track booking) {
-      <div class="booking-card">
-        <div class="image-container">
-          <!-- Display yacht images dynamically -->
+  @if (bookings.length === 0) {
+    <div class="empty-state">
+      <i class="fas fa-ship"></i>
+      <h3>Aucune réservation</h3>
+      <p>Vous n'avez pas encore effectué de réservation</p>
+      <button class="btn-explore" routerLink="/dashboard/client/list">
+        <i class="fas fa-compass"></i>
+        Explorer les yachts
+      </button>
+    </div>
+  }
+
+  <div class="bookings-grid">
+    @for (booking of filteredBookings; track booking._id) {
+      <div class="booking-card-modern">
+        <div class="card-badge" [ngClass]="{
+          'badge-pending': booking.status === 'pending',
+          'badge-accepted': booking.status === 'accepted',
+          'badge-canceled': booking.status === 'canceled',
+          'badge-payed': booking.status === 'payed',
+          'badge-ongoing': booking.status === 'ongoing',
+          'badge-done': booking.status === 'done'
+        }">
+          <i class="fas" [ngClass]="{
+            'fa-clock': booking.status === 'pending',
+            'fa-check-circle': booking.status === 'accepted',
+            'fa-times-circle': booking.status === 'canceled',
+            'fa-credit-card': booking.status === 'payed',
+            'fa-anchor': booking.status === 'ongoing',
+            'fa-flag-checkered': booking.status === 'done'
+          }"></i>
+          {{ booking.status === 'pending' ? 'En attente' :
+             booking.status === 'accepted' ? 'Accepté' :
+             booking.status === 'canceled' ? 'Annulé' :
+             booking.status === 'payed' ? 'Payé' :
+             booking.status === 'ongoing' ? 'En cours' :
+             booking.status === 'done' ? 'Terminé' : '' }}
+        </div>
+
+        <div class="yacht-image-container">
           <img
             [src]="getUrl(booking.yacht.images[currentImageIndex[booking._id]]) || 'assets/default-yacht.jpg'"
-            alt="Yacht Image"
-            class="yacht-image"
-            />
-            <!-- Next Button for Image Navigation -->
-            <button class="next-btn" (click)="nextImage(booking, $event)">&#10095;</button>
-          </div>
-          <div class="booking-details">
-            <h3>{{ booking.yacht.name }}</h3>
-            <p>
-          <span class="status" [ngClass]="{
-            'pending': booking.status === 'pending',
-            'accepted': booking.status === 'accepted',
-            'canceled': booking.status === 'canceled',
-            'payed': booking.status === 'payed',
-            'ongoing': booking.status === 'ongoing',
-            'done': booking.status === 'done'
-          }">
-                {{ booking.status === 'pending' ? 'En attente' :
-                booking.status === 'accepted' ? 'Accepté' :
-                booking.status === 'canceled' ? 'Annulé' :
-                booking.status === 'payed' ? 'Payé' :
-                booking.status === 'ongoing' ? 'En cours' :
-                booking.status === 'done' ? 'Terminé' : '' }}
-              </span>
-            </p>
-            <p><strong>Date:</strong> {{ booking.startDate | date:'mediumDate' }} - {{ booking.endDate | date:'mediumDate' }}</p>
-            <p><strong>Prix total:</strong> {{ booking.totalPrice }} DT</p>
-            <!-- Booking Actions -->
-            <div class="booking-actions">
-              @if (booking.status === 'accepted') {
-                <button class="pay-button" (click)="paymentModal.openPaymentModal(booking)">Payer</button>
-              }
-              @if (booking.status === 'accepted') {
-                <button class="cancel-button" (click)="cancelBooking(booking._id)">Annuler</button>
-              }
-              @if (booking.status === 'payed') {
-                <p class="status-message">✅ Payé</p>
-              }
-              @if (booking.status === 'ongoing') {
-                <p class="status-message">⏳ En cours</p>
-              }
-              @if (booking.status === 'done') {
-                <p class="status-message">🏁 Terminé</p>
-              }
-              @if (booking.status === 'done' && !booking.hasReviewed) {
-                <button class="review-button" (click)="goToAddReview(booking._id)">
-                  ⭐ Donner un avis
-                </button>
+            [alt]="booking.yacht.name"
+            class="yacht-image-modern">
+          <button class="image-nav-btn" (click)="nextImage(booking, $event)">
+            <i class="fas fa-chevron-right"></i>
+          </button>
+          <div class="image-overlay">
+            <div class="image-dots">
+              @for (img of booking.yacht.images; track img; let i = $index) {
+                <span class="dot" [class.active]="i === currentImageIndex[booking._id]"></span>
               }
             </div>
           </div>
         </div>
-      }
-    </div>
-  </div>
 
-  <app-payment-modal #paymentModal></app-payment-modal>
+        <div class="card-content">
+          <h3 class="yacht-name">{{ booking.yacht.name }}</h3>
+          
+          <div class="booking-info-grid">
+            <div class="info-item">
+              <i class="fas fa-calendar-alt"></i>
+              <div>
+                <span class="info-label">Début</span>
+                <span class="info-value">{{ booking.startDate | date:'dd MMM yyyy' }}</span>
+              </div>
+            </div>
+            <div class="info-item">
+              <i class="fas fa-calendar-check"></i>
+              <div>
+                <span class="info-label">Fin</span>
+                <span class="info-value">{{ booking.endDate | date:'dd MMM yyyy' }}</span>
+              </div>
+            </div>
+            <div class="info-item full-width">
+              <i class="fas fa-coins"></i>
+              <div>
+                <span class="info-label">Prix total</span>
+                <span class="info-value price">{{ booking.totalPrice }} DT</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="card-actions">
+            <button class="action-btn btn-message" (click)="openChat(booking)">
+              <i class="fas fa-comment-dots"></i>
+              <span>Message</span>
+            </button>
+
+            @if (booking.status === 'accepted') {
+              <button class="action-btn btn-pay" (click)="paymentModal.openPaymentModal(booking)">
+                <i class="fas fa-credit-card"></i>
+                <span>Payer</span>
+              </button>
+              <button class="action-btn btn-cancel" (click)="cancelBooking(booking._id)">
+                <i class="fas fa-times"></i>
+                <span>Annuler</span>
+              </button>
+            }
+
+            @if (booking.status === 'payed') {
+              <div class="status-chip chip-payed">
+                <i class="fas fa-check-double"></i>
+                Payé avec succès
+              </div>
+            }
+
+            @if (booking.status === 'ongoing') {
+              <div class="status-chip chip-ongoing">
+                <i class="fas fa-spinner fa-pulse"></i>
+                En cours
+              </div>
+            }
+
+            @if (booking.status === 'done') {
+              <div class="status-chip chip-done">
+                <i class="fas fa-trophy"></i>
+                Voyage terminé
+              </div>
+            }
+
+            @if (booking.status === 'done' && !booking.hasReviewed) {
+              <button class="action-btn btn-review" (click)="goToAddReview(booking._id)">
+                <i class="fas fa-star"></i>
+                <span>Donner un avis</span>
+              </button>
+            }
+          </div>
+        </div>
+      </div>
+    }
+  </div>
+</div>
+
+<app-payment-modal #paymentModal></app-payment-modal>

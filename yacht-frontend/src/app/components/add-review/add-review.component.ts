@@ -8,13 +8,15 @@ import {getUrl} from '../../constants/functions';
 import {FormsModule} from '@angular/forms';
 import {HeaderComponent} from '../header/header.component';
 import {BookingService} from '../../services/bookingService/booking.service';
+import {ButtonLoaderComponent} from '../button-loader/button-loader.component';
 
 @Component({
   selector: 'app-add-review',
   imports: [
     NgClass,
     FormsModule,
-    HeaderComponent
+    HeaderComponent,
+    ButtonLoaderComponent
 ],
   templateUrl: './add-review.component.html',
   standalone: true,
@@ -26,10 +28,9 @@ export class AddReviewComponent implements OnInit {
   yachtName: string = '';
   yachtImage: string = '';
   successMessage: string = '';
-
-
   rating: number = 0;
   comment: string = '';
+  isLoading = false;
   constructor(
     private route: ActivatedRoute,
     private reviewService: ReviewService,
@@ -75,9 +76,10 @@ export class AddReviewComponent implements OnInit {
       comment: this.comment,
       bookingId: this.bookingId
     };
-    console.log('reviewData',reviewData)
+    this.isLoading = true;
     this.reviewService.submitReview(reviewData).subscribe(
       (response) => {
+        this.isLoading = false;
         this.successMessage = '✅ Votre avis a été soumis et est en attente de validation.';
         this.toastr.success('Votre avis a été soumis avec succès !');
         setTimeout(() => {
@@ -85,6 +87,7 @@ export class AddReviewComponent implements OnInit {
         }, 3000);
       },
       (error) => {
+        this.isLoading = false;
         console.error('❌ Erreur lors de l\'envoi de l\'avis:', error);
         this.toastr.error('Erreur lors de l\'envoi de l\'avis.');
       }

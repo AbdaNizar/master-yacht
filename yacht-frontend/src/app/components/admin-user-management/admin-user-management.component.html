@@ -1,4 +1,3 @@
-<app-header/>
 <div class="admin-container">
   <h2 class="text-center">Gestion des Utilisateurs</h2>
 
@@ -41,13 +40,28 @@
                 <div class="user-status">{{!owner.isValidatedByAdmin ? '⏳ En attente' :'✅ Approuvé' }}</div>
                 <div class="action-buttons">
                   @if (!owner.isValidatedByAdmin) {
-                    <button class="btn btn-success" (click)="approveUser(owner._id)">✅ Approuver</button>
+                    <app-button-loader 
+                      [loading]="loadingUsers[owner._id]"
+                      buttonClass="btn btn-success"
+                      (click)="approveUser(owner._id)">
+                      ✅ Approuver
+                    </app-button-loader>
                   }
                   @if (!owner.isBlockedByAdmin && owner.isValidatedByAdmin) {
-                    <button class="btn btn-danger" (click)="blockUser(owner._id)">🚫 Bloquer</button>
+                    <app-button-loader 
+                      [loading]="loadingUsers[owner._id]"
+                      buttonClass="btn btn-danger"
+                      (click)="blockUser(owner._id)">
+                      🚫 Bloquer
+                    </app-button-loader>
                   }
                   @if (owner.isBlockedByAdmin && owner.isValidatedByAdmin) {
-                    <button class="btn btn-success"  (click)="deblockUser(owner._id)">✅ Débloquer</button>
+                    <app-button-loader 
+                      [loading]="loadingUsers[owner._id]"
+                      buttonClass="btn btn-success"
+                      (click)="deblockUser(owner._id)">
+                      ✅ Débloquer
+                    </app-button-loader>
                   }
                 </div>
               </div>
@@ -72,13 +86,28 @@
                 <div class="user-status">{{!client.isValidatedByAdmin ? '⏳ En attente' :'✅ Approuvé' }}</div>
                 <div class="action-buttons">
                   @if (!client.isValidatedByAdmin) {
-                    <button class="btn btn-success" (click)="approveUser(client._id)">✅ Approuver</button>
+                    <app-button-loader 
+                      [loading]="loadingUsers[client._id]"
+                      buttonClass="btn btn-success"
+                      (click)="approveUser(client._id)">
+                      ✅ Approuver
+                    </app-button-loader>
                   }
                   @if (!client.isBlockedByAdmin && client.isValidatedByAdmin) {
-                    <button class="btn btn-danger" (click)="blockUser(client._id)">🚫 Bloquer</button>
+                    <app-button-loader 
+                      [loading]="loadingUsers[client._id]"
+                      buttonClass="btn btn-danger"
+                      (click)="blockUser(client._id)">
+                      🚫 Bloquer
+                    </app-button-loader>
                   }
                   @if (client.isBlockedByAdmin && client.isValidatedByAdmin) {
-                    <button class="btn btn-success"  (click)="deblockUser(client._id)">✅ Débloquer</button>
+                    <app-button-loader 
+                      [loading]="loadingUsers[client._id]"
+                      buttonClass="btn btn-success"
+                      (click)="deblockUser(client._id)">
+                      ✅ Débloquer
+                    </app-button-loader>
                   }
                 </div>
               </div>

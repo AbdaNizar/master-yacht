@@ -1,64 +1,123 @@
-<app-header></app-header>
-
-<div class="payment-container">
-  <h1 class="page-title">Historique des paiements </h1>
-
-  <div class="stats-container">
-    <div class="stat-card">
-      <h3>Total Paiements</h3>
-      <p>{{ totalPayments }}</p>
+<div class="payments-container">
+  <div class="page-header">
+    <div class="header-content">
+      <i class="fas fa-credit-card"></i>
+      <div>
+        <h1>Historique des Paiements</h1>
+        <p>Consultez vos transactions et statistiques</p>
+      </div>
     </div>
+  </div>
+
+  <div class="stats-grid">
+    <div class="stat-card total">
+      <div class="stat-icon">
+        <i class="fas fa-receipt"></i>
+      </div>
+      <div class="stat-content">
+        <h3>Total Paiements</h3>
+        <p class="stat-value">{{ totalPayments }}</p>
+      </div>
+    </div>
+
     <div class="stat-card success">
-      <h3>Paiements réussis</h3>
-      <p>{{ paidPercentage }}%</p>
+      <div class="stat-icon">
+        <i class="fas fa-check-circle"></i>
+      </div>
+      <div class="stat-content">
+        <h3>Paiements Réussis</h3>
+        <p class="stat-value">{{ paidPercentage }}%</p>
+      </div>
     </div>
+
     <div class="stat-card failed">
-      <h3>Paiements échoués</h3>
-      <p>{{ failedPercentage }}%</p>
+      <div class="stat-icon">
+        <i class="fas fa-times-circle"></i>
+      </div>
+      <div class="stat-content">
+        <h3>Paiements Échoués</h3>
+        <p class="stat-value">{{ failedPercentage }}%</p>
+      </div>
     </div>
-    <div class="stat-card total-paid">
-      <h3>Montant total payé </h3>
-      <p>{{ totalAmountPaid  }}DT</p>
+
+    <div class="stat-card amount">
+      <div class="stat-icon">
+        <i class="fas fa-money-bill-wave"></i>
+      </div>
+      <div class="stat-content">
+        <h3>Montant Total</h3>
+        <p class="stat-value">{{ totalAmountPaid }} DT</p>
+      </div>
     </div>
   </div>
 
-  <div class="chart-container">
-    <canvas id="paymentChart"></canvas>
+  <div class="chart-section">
+    <div class="chart-header">
+      <h2>
+        <i class="fas fa-chart-pie"></i>
+        Répartition des Paiements
+      </h2>
+    </div>
+    <div class="chart-wrapper">
+      <canvas id="paymentChart"></canvas>
+    </div>
   </div>
 
-  <div class="table-responsive">
-    <table class="table">
-      <thead>
-        <tr>
-          <th></th>
-          <th>Réservation</th>
-          <th>Montant</th>
-          <th>Date</th>
-          <th>Statut</th>
-        </tr>
-      </thead>
-      <tbody>
-        @for (payment of payments; track payment; let i = $index) {
-          <tr>
-            <td class="yacht-cell">
-              <div class="image-container">
-                <img
-                  [src]="getUrl(payment.booking.yacht.images[currentImageIndex[payment.booking._id]]) || 'assets/default-yacht.jpg'"
-                  class="yacht-image"
-                  />
-                </div>
-              </td>
-              <td>{{ payment.booking.yacht.name }}</td>
-              <td>{{ payment.totalPrice  }}Dt</td>
-              <td>{{ payment.createdAt | date: 'yyyy/MM/dd HH:mm' }}</td>
-              <td>
-                <span class="status-label" [ngClass]="getStatusClass(payment.status)">
-                  {{ getStatusText(payment.status) }}
-                </span>
-              </td>
+  <div class="table-section">
+    <div class="table-header">
+      <h2>
+        <i class="fas fa-list"></i>
+        Liste des Transactions
+      </h2>
+    </div>
+    
+    @if (payments.length === 0) {
+      <div class="empty-state">
+        <i class="fas fa-inbox"></i>
+        <h3>Aucun paiement</h3>
+        <p>Vous n'avez effectué aucun paiement pour le moment</p>
+      </div>
+    } @else {
+      <div class="table-wrapper">
+        <table class="payments-table">
+          <thead>
+            <tr>
+              <th>Yacht</th>
+              <th>Réservation</th>
+              <th>Montant</th>
+              <th>Date</th>
+              <th>Statut</th>
             </tr>
-          }
-        </tbody>
-      </table>
-    </div>
+          </thead>
+          <tbody>
+            @for (payment of payments; track payment._id) {
+              <tr>
+                <td class="yacht-cell">
+                  <div class="yacht-info">
+                    <div class="yacht-image-container">
+                      <img
+                        [src]="getUrl(payment.booking.yacht.images[currentImageIndex[payment.booking._id]]) || 'assets/default-yacht.jpg'"
+                        class="yacht-image"
+                        alt="{{ payment.booking.yacht.name }}"/>
+                    </div>
+                  </div>
+                </td>
+                <td class="yacht-name">{{ payment.booking.yacht.name }}</td>
+                <td class="amount">
+                  <span class="amount-value">{{ payment.totalPrice }} DT</span>
+                </td>
+                <td class="date">{{ payment.createdAt | date: 'dd/MM/yyyy HH:mm' }}</td>
+                <td class="status-cell">
+                  <span class="status-badge" [ngClass]="getStatusClass(payment.status)">
+                    <i [class]="getStatusIcon(payment.status)"></i>
+                    {{ getStatusText(payment.status) }}
+                  </span>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
   </div>
+</div>

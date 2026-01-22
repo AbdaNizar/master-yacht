@@ -1,5 +1,63 @@
-<div class="not-found-container">
-  <h1>404</h1>
-  <p>Oups ! La page que vous recherchez n'existe pas.</p>
+<div class="error-404-container">
+  <div class="error-content">
+    <div class="error-code">
+      <span class="four">4</span>
+      <span class="zero">
+        <i class="fas fa-anchor"></i>
+      </span>
+      <span class="four">4</span>
+    </div>
 
+    <h1 class="error-title">Page introuvable</h1>
+    <p class="error-message">
+      Désolé, la page que vous recherchez semble avoir dérivé en haute mer...
+    </p>
+
+    <div class="illustration">
+      <div class="boat-container">
+        <svg class="animated-boat" viewBox="0 0 100 50" xmlns="http://www.w3.org/2000/svg">
+          <g class="boat">
+            <path d="M20,30 L80,30 L85,40 L15,40 Z" fill="#6366F1"/>
+            <path d="M25,15 L25,30 L75,30 L75,15 Z" fill="#8B5CF6" opacity="0.8"/>
+            <path d="M45,5 L45,15 L55,15 L55,5 Z" fill="#A78BFA" opacity="0.6"/>
+            <circle cx="50" cy="25" r="3" fill="white" opacity="0.5"/>
+            <path d="M30,8 L30,15" stroke="white" stroke-width="1" opacity="0.7"/>
+            <path d="M50,3 L50,10" stroke="white" stroke-width="1.5" opacity="0.8"/>
+            <path d="M70,8 L70,15" stroke="white" stroke-width="1" opacity="0.7"/>
+            <polygon points="30,8 35,12 30,15" fill="white" opacity="0.5"/>
+            <polygon points="50,3 56,8 50,10" fill="white" opacity="0.6"/>
+            <polygon points="70,8 75,12 70,15" fill="white" opacity="0.5"/>
+          </g>
+        </svg>
+      </div>
+      <div class="waves">
+        <div class="wave"></div>
+        <div class="wave"></div>
+        <div class="wave"></div>
+      </div>
+    </div>
+
+    <button class="back-home-btn" (click)="goBack()">
+      <i class="fas fa-home"></i>
+      <span>{{ getBackButtonText() }}</span>
+      <i class="fas fa-arrow-right"></i>
+    </button>
+
+    <div class="quick-links">
+      <a (click)="goToLogin()" *ngIf="!isAuthenticated">
+        <i class="fas fa-sign-in-alt"></i>
+        Se connecter
+      </a>
+      <a (click)="goToRegister()" *ngIf="!isAuthenticated">
+        <i class="fas fa-user-plus"></i>
+        Créer un compte
+      </a>
+    </div>
+  </div>
+
+  <div class="bg-animation">
+    <div class="circle"></div>
+    <div class="circle"></div>
+    <div class="circle"></div>
+  </div>
 </div>
